@@ -1,106 +1,183 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anthony Panizza DIAPO - Écran</title>
+<title>Le biais du statu quo - Anthony Panizza</title>
 <style>
-body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#fff;height:100vh;display:flex;gap:4vw;padding:4vh 4vw 9vh;box-sizing:border-box}
-.main{flex:1;display:flex;flex-direction:column}
-h1{font-size:3.2vw;margin:0 0 3vh}
-.row{margin:1.2vh 0}.lab{display:flex;justify-content:space-between;font-size:2vw;margin-bottom:.6vh}
-.bar{background:#1e293b;border-radius:10px;height:4.5vh;overflow:hidden}
-.fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);width:0;transition:width .6s ease}
-.side{width:22vw;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:2vh}
-.side #qr{background:#fff;border-radius:16px;padding:8px;box-sizing:border-box}.side #qr svg{width:100%;height:auto;display:block}
-#intro{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:2vh;text-align:center;background:#0f172a;padding-bottom:6vh}
-#intro h1{font-size:4.5vw;margin:0}#intro #qr2{background:#fff;border-radius:2vw;padding:1.2vw;height:58vh;aspect-ratio:1}#intro #qr2 svg{width:100%;height:100%;display:block}
-#intro .small{font-size:1.6vw}#intro .sub{font-size:2.2vw;color:#94a3b8}
-.bar{position:relative}.ref{position:absolute;top:-3px;bottom:-3px;width:4px;background:#facc15;border-radius:2px;display:none;transition:left .6s ease}.reft{color:#facc15;display:none;margin-right:1vw}
-.small{color:#94a3b8;font-size:1.1vw;word-break:break-all}.tot{font-size:1.8vw;color:#94a3b8;margin-top:2vh}
-#bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.25;transition:opacity .2s}
-#bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar span{color:#94a3b8;font-size:.85rem;margin-left:auto}
-#editor{position:fixed;inset:0;background:#0f172acc;display:none;padding:5vh 10vw;box-sizing:border-box;flex-direction:column;gap:8px}
-#editor textarea{flex:1;font-family:monospace;font-size:1rem}
+:root{--bg:#0b1020;--card:#151b34;--txt:#f1f5f9;--mut:#94a3b8;--a:#818cf8;--b:#22d3ee;--hl:#facc15}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;overflow:hidden;font-family:system-ui,'Segoe UI',sans-serif;color:var(--txt);
+ background:radial-gradient(60vw 60vh at 85% 10%,#3730a355,transparent),radial-gradient(50vw 50vh at 5% 95%,#0e749055,transparent),var(--bg)}
+#prog{position:fixed;top:0;left:0;height:.5vh;background:linear-gradient(90deg,var(--a),var(--b));transition:width .4s}
+.slide{position:absolute;inset:0;padding:7vh 6vw 9vh;display:flex;flex-direction:column;justify-content:center;animation:in .5s ease}
+@keyframes in{from{opacity:0;transform:translateY(2vh)}to{opacity:1;transform:none}}
+.kicker{font-size:1.5vw;letter-spacing:.25em;text-transform:uppercase;color:var(--b);margin-bottom:2vh;font-weight:600}
+h1{font-size:5.6vw;line-height:1.05;margin:0 0 3vh;background:linear-gradient(90deg,#fff,#c7d2fe);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:3.4vw;line-height:1.15;margin:0 0 4vh}
+.sub{font-size:2.2vw;color:var(--mut)}
+.cols{display:flex;gap:4vw;align-items:center}
+ul{list-style:none;margin:0;padding:0;flex:1}
+li{font-size:2.2vw;line-height:1.35;margin:0 0 2.6vh;padding-left:2.4vw;position:relative;opacity:0;transform:translateX(-2vw);transition:.5s}
+li::before{content:'';position:absolute;left:0;top:.6em;width:.9vw;height:.9vw;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
+li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
+.stat{width:30vw;background:var(--card);border:1px solid #ffffff18;border-radius:2vw;padding:4vh 2vw;text-align:center;opacity:0;transform:scale(.92);transition:.6s}
+.stat.show{opacity:1;transform:none}
+.stat .v{font-size:4.6vw;font-weight:800;background:linear-gradient(90deg,var(--hl),#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .l{font-size:1.5vw;color:var(--mut);margin-top:1.5vh}
+.src{position:absolute;left:6vw;right:6vw;bottom:7vh;font-size:1.1vw;color:#64748b}
+.slide.title,.slide.end,.slide.qr{align-items:center;text-align:center}
+.slide.title h1{font-size:6.6vw}.author{margin-top:5vh;font-size:1.8vw;color:var(--mut)}
+.qrbox{background:#fff;border-radius:2vw;padding:1.2vw;height:52vh;aspect-ratio:1;margin:2vh 0}.qrbox svg{width:100%;height:100%;display:block}
+.slide.qr h1{font-size:4.4vw;margin-bottom:1vh}.url{font-size:1.4vw;color:var(--mut);word-break:break-all}
+.cnt{font-size:2.2vw;color:var(--b);margin-top:1vh;font-weight:600}
+.pollwrap{display:flex;gap:4vw}.pollmain{flex:1}.pollside{width:17vw;text-align:center;font-size:1.3vw;color:var(--mut)}
+.pollside .qrbox{height:auto;width:100%;padding:.7vw;border-radius:1.2vw}
+.row{margin:1.8vh 0}.lab{display:flex;justify-content:space-between;font-size:2vw;margin-bottom:.8vh}
+.bar{background:#1e293b;border-radius:1vw;height:5vh;overflow:hidden;position:relative}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--b));transition:width .7s ease;border-radius:1vw}
+.ref{position:absolute;top:0;bottom:0;width:.35vw;background:var(--hl);display:none;transition:left .6s}
+.reft{color:var(--hl);margin-right:1.2vw;display:none}
+.tot{font-size:1.6vw;color:var(--mut);margin-top:2vh}
+#bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.2;transition:opacity .2s;z-index:5}
+#bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar .info{color:#94a3b8;font-size:.85rem;margin-left:auto}
 </style></head><body>
-<div id="intro"><h1>🧠 Rejoignez ma machine à expérience</h1><div class="sub">Scannez pour entrer dans la machine et voter depuis votre téléphone</div><div id="qr2"></div><div class="small" id="url2"></div><div class="sub" id="cnt"></div></div>
-<div class="main"><h1 id="q">Démarrage…</h1><div id="rows"></div><div class="tot" id="tot"></div></div>
-<div class="side"><div style="font-size:1.8vw">Scannez pour voter</div><div id="qr"></div><div class="small" id="url"></div></div>
+<div id="prog"></div>
+<section id="slide" class="slide"></section>
 <div id="bar">
   <button id="prev">◀</button><button id="next">▶</button>
-  <button id="toggle"></button><button id="reveal">📺 Stats vidéo</button><button id="reset">Remise à zéro</button><button id="edit">Éditer les questions</button>
-  <span id="n"></span><span>← → changer · Espace ouvrir/fermer · R stats vidéo · E éditer</span>
-</div>
-<div id="editor">
-  <div>Une question par bloc, séparés par une ligne vide. 1ère ligne = question, puis options. Ajoutez « :: 87 » après une option pour le % de la vidéo.</div>
-  <textarea id="ed"></textarea>
-  <div><button id="save">Enregistrer</button> <button id="cancel">Annuler</button></div>
+  <button id="toggle"></button><button id="reveal">📺 Stats vidéo</button><button id="reset">Remise à zéro</button><button id="full">⛶ Plein écran</button>
+  <span class="info" id="n"></span><span class="info" style="margin-left:0">← → naviguer · Espace votes · R stats vidéo · F plein écran</span>
 </div>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
 const $ = id => document.getElementById(id);
-const defaults = [
-  { id: 1, question: "Une machine peut simuler pour vous une vie parfaitement heureuse, sans que vous sachiez que c'est une simulation. Vous branchez-vous ?", options: ['Je me branche', 'Je ne me branche pas', 'Indécis'], refs: [50, 50, null] },
-  { id: 2, question: 'Vous êtes déjà dans une illusion (la machine). On vous propose de revenir à la réalité. Que faites-vous ?', options: ['Je reste dans l\'illusion', 'Je retourne à la réalité', 'Indécis'], refs: [60, 40, null] },
-  { id: 3, question: 'Vos deux réponses combinées : lesquelles ressemblent à vos choix ?', options: ['Illusion dans les deux cas (je me branche et je reste)', 'Réalité dans les deux cas', 'Curieux : je change de situation dans les deux cas', 'Autre combinaison'], refs: [null, null, null, null] },
+
+// refs = pourcentages de la vidéo de Monsieur Phi (indécis exclus) ; null = pas de chiffre
+const slides = [
+  { kind: 'qr' },
+  { kind: 'title', kicker: 'Exposé de philosophie & psychologie', title: 'Le biais du statu quo', sub: 'Pourquoi préférons-nous que rien ne change ?', author: 'Anthony Panizza' },
+  { kind: 'poll', id: 'p1', question: "Une machine peut simuler pour vous une vie parfaitement heureuse, sans que vous sachiez que c'est une simulation. Vous branchez-vous ?",
+    options: ['Je me branche', 'Je ne me branche pas', 'Indécis'], refs: [50, 50, null] },
+  { kind: 'poll', id: 'p2', question: 'Maintenant, imaginez que vous êtes déjà dans la machine. On vous propose de revenir à la réalité. Que faites-vous ?',
+    options: ["Je reste dans l'illusion", 'Je retourne à la réalité', 'Indécis'], refs: [60, 40, null] },
+  { kind: 'content', kicker: "L'expérience de pensée", title: 'La machine à expérience de Nozick',
+    bullets: ["Robert Nozick, <b>Anarchie, État et utopie</b> (1974)", "Une machine offre une vie parfaite, <b>indiscernable du réel</b>", "Nozick pensait que presque tout le monde refuserait : nous voulons <b>vivre</b>, pas seulement ressentir"],
+    stat: { v: '50 / 50', l: 'En réalité, la classe en ligne se divise à parts égales' }, src: "Source : Monsieur Phi, « La machine à expérience de Nozick »" },
+  { kind: 'content', kicker: 'Le twist', title: "Et si on inversait la situation ?",
+    bullets: ["Felipe De Brigard (2010) : on dit aux gens qu'ils sont <b>déjà</b> dans la machine", "Beaucoup <b>refusent d'en sortir</b>", "Même question, même contenu, mais une réponse opposée : <b>seul le point de départ a changé</b>"],
+    stat: { v: '+ de 60 %', l: 'restent dans l\'illusion (indécis exclus)' }, src: "Source : De Brigard, « If you like it, does it matter if it's real? », Philosophical Psychology, 2010 ; Monsieur Phi" },
+  { kind: 'content', kicker: 'Cohérence ?', title: 'Que révèlent nos deux réponses ?',
+    bullets: ["La majorité est <b>cohérente</b> : illusion dans les deux cas, ou réalité dans les deux cas", "Les « curieux » (changer dans les deux cas) sont nettement <b>moins nombreux</b>", "Rester où l'on est est donc le choix le plus fréquent"],
+    src: "Source : sondage complémentaire cité par Monsieur Phi" },
+  { kind: 'content', kicker: 'Définition', title: 'Le biais du statu quo',
+    bullets: ["La tendance à <b>préférer l'état actuel</b> des choses", "Tout changement est perçu comme un <b>risque ou une perte</b>", "Terme introduit par <b>Samuelson & Zeckhauser</b> (1988)", "Option par défaut = option <b>choisie</b>"],
+    stat: { v: '1988', l: 'William Samuelson & Richard Zeckhauser, Journal of Risk and Uncertainty' } },
+  { kind: 'content', kicker: 'Pourquoi ?', title: 'Les mécanismes derrière le biais',
+    bullets: ["<b>Aversion à la perte</b> : perdre fait plus mal que gagner ne fait plaisir (Kahneman & Tversky)", "<b>Effet de dotation</b> : on valorise plus ce que l'on possède déjà", "<b>Aversion au regret</b> : agir et se tromper pèse plus que ne rien faire", "<b>Coût de l'effort</b> : changer demande du temps et de l'énergie"],
+    stat: { v: '≈ × 2', l: 'les vendeurs réclament environ le double du prix que les acheteurs acceptent de payer (expérience des mugs)' }, src: "Source : Kahneman, Knetsch & Thaler, Journal of Political Economy, 1990" },
+  { kind: 'content', kicker: 'Dans la vraie vie', title: 'Le don d\'organes',
+    bullets: ["Allemagne : il faut <b>cocher</b> pour devenir donneur", "Autriche : on est donneur <b>sauf refus</b>", "Mêmes valeurs, mêmes citoyens, mais des résultats <b>radicalement différents</b>"],
+    stat: { v: '12 % vs 99 %', l: 'de donneurs : Allemagne (opt-in) contre Autriche (opt-out)' }, src: "Source : Johnson & Goldstein, « Do Defaults Save Lives? », Science, 2003" },
+  { kind: 'content', kicker: 'Autres exemples', title: 'Le statu quo est partout',
+    bullets: ["<b>Assurance et retraite</b> : on garde le contrat de départ pendant des années", "<b>Abonnements</b> : on oublie de résilier", "<b>Habitudes</b> : même banque, même forfait, même marque", "<b>Politique</b> : « on a toujours fait comme ça »"],
+    src: "Samuelson & Zeckhauser (1988) : les employés de Harvard restent sur leur plan de santé initial" },
+  { kind: 'content', kicker: 'Comment le détecter ?', title: "Le test d'inversion",
+    bullets: ["Proposé par <b>Nick Bostrom et Toby Ord</b> (2006)", "Si l'on refuse un changement, <b>inversons-le</b>", "Si l'on refuse aussi le changement inverse, on suspecte un <b>biais du statu quo</b> plutôt qu'une vraie raison", "C'est exactement ce que fait De Brigard avec la machine"],
+    src: "Source : Bostrom & Ord, « The Reversal Test: Eliminating Status Quo Bias in Applied Ethics », Ethics, 2006" },
+  { kind: 'content', kicker: 'Nuance', title: 'Le statu quo est-il toujours irrationnel ?',
+    bullets: ["Non : ce qui a <b>survécu</b> au temps contient souvent de l'information (la « barrière de Chesterton »)", "Le changement a un <b>coût réel</b> et comporte des incertitudes", "Le problème n'est pas de préférer le statu quo, mais de <b>le faire sans le savoir</b>"],
+    src: "G. K. Chesterton, The Thing (1929)" },
+  { kind: 'content', kicker: 'Retour à la machine', title: 'Valeur ou biais ?',
+    bullets: ["Refuser la machine exprime-t-il ce que nous <b>valorisons vraiment</b> ?", "Ou simplement notre <b>attachement à ce qui existe</b> ?", "Nozick : « il nous importe d'être et de faire, pas seulement de ressentir »", "La question reste ouverte, et <b>nos votes le montrent</b>"],
+    stat: { v: '?', l: 'Et vous, branché ou pas ?' } },
+  { kind: 'end', title: 'Merci !', sub: 'Des questions ?' },
 ];
-const state = JSON.parse(localStorage.hostState2 || 'null') || { polls: defaults, current: -1, open: true, reveal: false, votes: {}, voters: {} };
-const save = () => localStorage.hostState2 = JSON.stringify(state);
-const poll = () => state.polls[state.current];
-const sameRefs = () => (poll()?.refs || []);
+
+const state = Object.assign({ cur: 0, step: 0, open: true, reveal: false, votes: {}, voters: {} }, JSON.parse(localStorage.deck1 || 'null') || {});
+state.cur = Math.min(state.cur, slides.length - 1);
+const save = () => localStorage.deck1 = JSON.stringify(state);
+const S = () => slides[state.cur];
+const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + (s.stat ? 1 : 0) : 0;
+
 const view = () => {
-  const p = poll(), v = p ? state.votes[p.id] || {} : {};
-  return { intro: state.current < 0, poll: p || null, open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
+  const s = S(), p = s.kind === 'poll' ? s : null, v = p ? state.votes[p.id] || {} : {};
+  return { intro: s.kind === 'qr', poll: p ? { id: p.id, question: p.question, options: p.options } : null,
+    open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
 };
 
-// Identifiant stable pour que le QR code reste valable après rechargement
+// QR code (identifiant stable pour rester valable après rechargement)
 const hostId = localStorage.hostId ||= 'diapo-' + Math.random().toString(36).slice(2, 10);
 const voterUrl = new URL('./?h=' + hostId, location.href).href;
 const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
-$('qr').innerHTML = qr.createSvgTag({ scalable: true, margin: 0 });
-$('url').textContent = voterUrl;
-const qr2 = qrcode(0, 'M'); qr2.addData(voterUrl); qr2.make();
-$('qr2').innerHTML = qr2.createSvgTag({ scalable: true, margin: 0 }); $('url2').textContent = voterUrl;
+const qrSvg = qr.createSvgTag({ scalable: true, margin: 0 });
 
 const conns = new Set();
-function broadcast() { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); }
+const broadcast = () => { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); };
+
+function render() {
+  const s = S(), el = $('slide');
+  el.className = 'slide ' + s.kind;
+  const kick = s.kicker ? `<div class="kicker">${s.kicker}</div>` : '';
+  if (s.kind === 'qr') el.innerHTML = `<h1>🧠 Rejoignez ma machine à expérience</h1><div class="sub">Scannez pour entrer dans la machine et participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
+  else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${s.title}</h1><div class="sub">${s.sub}</div><div class="author">${s.author}</div>`;
+  else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
+  else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
+    + (s.stat ? `<div class="stat"><div class="v">${s.stat.v}</div><div class="l">${s.stat.l}</div></div>` : '') + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
+  else if (s.kind === 'poll') {
+    el.innerHTML = `<div class="kicker">À vous de voter</div><div class="pollwrap"><div class="pollmain"><h2></h2><div id="rows"></div><div class="tot" id="tot"></div></div>`
+      + `<div class="pollside"><div>Scannez pour voter</div><div class="qrbox">${qrSvg}</div></div></div>`;
+    el.querySelector('h2').textContent = s.question;
+    $('rows').innerHTML = s.options.map(() => '<div class="row"><div class="lab"><span></span><span><b class="reft"></b><i></i></span></div><div class="bar"><div class="fill"></div><div class="ref"></div></div></div>').join('');
+  }
+  $('prog').style.width = (state.cur + 1) / slides.length * 100 + '%';
+}
 
 function draw() {
-  const s = view();
-  const intro = state.current < 0;
-  $('intro').style.display = intro ? 'flex' : 'none';
-  document.querySelector('.main').style.visibility = document.querySelector('.side').style.visibility = intro ? 'hidden' : 'visible';
-  $('cnt').textContent = conns.size + ' personne' + (conns.size > 1 ? 's' : '') + ' connectée' + (conns.size > 1 ? 's' : '');
-  $('toggle').textContent = s.open ? '⏸ Fermer les votes' : '▶ Ouvrir les votes';
-  $('n').textContent = `${state.current < 0 ? 'Accueil' : state.current + 1}/${state.polls.length} · ${conns.size} connecté(s)`;
-  if (!s.poll) { $('q').textContent = '—'; $('rows').innerHTML = ''; return; }
-  $('q').textContent = s.poll.question;
-  const tot = s.counts.reduce((a, b) => a + b, 0);
-  const rows = $('rows');
-  if (rows.dataset.p != s.poll.id || rows.children.length !== s.poll.options.length) {
-    rows.dataset.p = s.poll.id;
-    rows.innerHTML = s.poll.options.map(() => '<div class="row"><div class="lab"><span></span><span><b class="reft"></b><i></i></span></div><div class="bar"><div class="fill"></div><div class="ref"></div></div></div>').join('');
+  const s = S();
+  $('toggle').textContent = state.open ? '⏸ Fermer les votes' : '▶ Ouvrir les votes';
+  $('n').textContent = `${state.cur + 1}/${slides.length} · ${conns.size} connecté(s)`;
+  if ($('cnt')) $('cnt').textContent = conns.size + ' personne' + (conns.size > 1 ? 's' : '') + ' dans la machine';
+  if (s.kind === 'content') {
+    const n = s.bullets?.length || 0;
+    document.querySelectorAll('li').forEach((li, i) => li.classList.toggle('show', i < state.step));
+    document.querySelector('.stat')?.classList.toggle('show', state.step > n || (!n && state.step >= 1));
   }
-  [...rows.children].forEach((r, i) => {
-    const refs = sameRefs(), cmp = state.reveal && refs.some(x => x != null), base = cmp ? s.counts.reduce((a, n, k) => a + (refs[k] != null ? n : 0), 0) : tot;
-    const c = s.counts[i], pct = base && (!cmp || refs[i] != null) ? Math.round(c / base * 100) : 0;
-    const sp = r.querySelectorAll('span');
-    sp[0].textContent = s.poll.options[i]; r.querySelector('i').textContent = ` (%)`;
-    const ref = sameRefs()[i], show = state.reveal && ref != null;
-    r.querySelector('.reft').style.display = show ? 'inline' : 'none'; r.querySelector('.reft').textContent = show ? 'Vidéo : ' + ref + '%' : '';
-    r.querySelector('.ref').style.display = show ? 'block' : 'none'; r.querySelector('.ref').style.left = 'calc(' + (ref || 0) + '% - 2px)';
-    r.querySelector('.fill').style.width = pct + '%';
-  });
-  $('tot').textContent = `${tot} vote${tot > 1 ? 's' : ''}`;
+  if (s.kind === 'poll') {
+    const v = view(), tot = v.counts.reduce((a, b) => a + b, 0);
+    const cmp = state.reveal && s.refs.some(x => x != null);
+    const base = cmp ? v.counts.reduce((a, c, k) => a + (s.refs[k] != null ? c : 0), 0) : tot;
+    [...$('rows').children].forEach((r, i) => {
+      const ref = s.refs[i], show = cmp && ref != null;
+      const pct = base && (!cmp || ref != null) ? Math.round(v.counts[i] / base * 100) : 0;
+      r.querySelectorAll('span')[0].textContent = s.options[i];
+      r.querySelector('i').textContent = `${v.counts[i]} (${pct}%)`;
+      r.querySelector('.fill').style.width = pct + '%';
+      const rt = r.querySelector('.reft'); rt.style.display = show ? 'inline' : 'none'; rt.textContent = show ? 'Vidéo : ' + ref + '%' : '';
+      const rf = r.querySelector('.ref'); rf.style.display = show ? 'block' : 'none'; rf.style.left = `calc(${ref || 0}% - .17vw)`;
+    });
+    $('tot').textContent = `${tot} vote${tot > 1 ? 's' : ''}` + (state.open ? '' : ' · votes fermés');
+  }
 }
-function update() { save(); draw(); broadcast(); }
+const update = () => { save(); draw(); broadcast(); };
+const changed = () => { state.reveal = false; render(); update(); };
+const next = () => {
+  const s = S();
+  if (state.step < maxStep(s)) { state.step++; update(); }
+  else if (state.cur < slides.length - 1) { state.cur++; state.step = 0; changed(); }
+};
+const prev = () => {
+  if (state.step > 0 && S().kind === 'content') { state.step--; update(); }
+  else if (state.cur > 0) { state.cur--; state.step = maxStep(S()); changed(); }
+};
 
 function onVote(conn, d) {
-  const p = poll();
+  const p = S();
   const err = e => conn.send({ t: 'ack', ok: false, error: e, pollId: d.pollId });
-  if (!p || p.id !== d.pollId || !state.open || !d.clientId || !(d.option >= 0 && d.option < p.options.length)) return err('refused');
+  if (p.kind !== 'poll' || p.id !== d.pollId || !state.open || !d.clientId || !(d.option >= 0 && d.option < p.options.length)) return err('refused');
   const vs = state.voters[p.id] ||= {};
   if (d.clientId in vs) return err('dup');
   vs[d.clientId] = d.option;
-  (state.votes[p.id] ||= {})[d.option] = ((state.votes[p.id] || {})[d.option] || 0) + 1;
+  const v = state.votes[p.id] ||= {};
+  v[d.option] = (v[d.option] || 0) + 1;
   conn.send({ t: 'ack', ok: true, option: d.option, pollId: p.id });
   update();
 }
@@ -113,35 +190,21 @@ function startPeer() {
     conn.on('close', () => { conns.delete(conn); draw(); });
   });
   peer.on('disconnected', () => peer.reconnect());
-  peer.on('error', e => { if (e.type === 'unavailable-id') { document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; } });
+  peer.on('error', e => { if (e.type === 'unavailable-id') document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; });
 }
 
-const go = i => { state.current = Math.max(-1, Math.min(state.polls.length - 1, i)); state.reveal = false; update(); };
-$('prev').onclick = () => go(state.current - 1); $('next').onclick = () => go(state.current + 1);
-$('reveal').onclick = () => { state.reveal = !state.reveal; update(); };
+$('prev').onclick = prev; $('next').onclick = next;
 $('toggle').onclick = () => { state.open = !state.open; update(); };
-$('reset').onclick = () => { const p = poll(); if (p && confirm('Effacer les votes de cette question ?')) { delete state.votes[p.id]; delete state.voters[p.id]; update(); } };
-function openEditor() { $('ed').value = state.polls.map(p => [p.question, ...p.options.map((o, i) => o + (p.refs?.[i] != null ? ' :: ' + p.refs[i] : ''))].join('\n')).join('\n\n'); $('editor').style.display = 'flex'; }
-$('edit').onclick = openEditor; $('cancel').onclick = () => $('editor').style.display = 'none';
-$('save').onclick = () => {
-  const polls = $('ed').value.split(/\n\s*\n/).map(b => b.trim().split('\n').map(l => l.trim()).filter(Boolean)).filter(l => l.length >= 3)
-    .map((l, i) => {
-      const parts = l.slice(1).map(x => { const m = x.split('::'); const n = parseFloat(m[1]); return [m[0].trim(), m.length > 1 && !isNaN(n) ? n : null]; });
-      return { id: Date.now() + i, question: l[0], options: parts.map(p => p[0]), refs: parts.map(p => p[1]) };
-    });
-  if (polls.length) {
-    state.polls = polls; state.current = -1; state.votes = {}; state.voters = {};
-    update(); $('editor').style.display = 'none';
-  }
-};
+$('reveal').onclick = () => { state.reveal = !state.reveal; update(); };
+$('reset').onclick = () => { const p = S(); if (p.kind === 'poll' && confirm('Effacer les votes de cette question ?')) { delete state.votes[p.id]; delete state.voters[p.id]; update(); } };
+$('full').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 addEventListener('keydown', e => {
-  if (e.target.tagName === 'TEXTAREA') return;
-  if (e.key === 'ArrowRight' || e.key === 'PageDown') go(state.current + 1);
-  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(state.current - 1);
+  if (['ArrowRight', 'PageDown', 'Enter'].includes(e.key)) next();
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) prev();
   else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
   else if (e.key.toLowerCase() === 'r') $('reveal').click();
-  else if (e.key.toLowerCase() === 'e') openEditor();
+  else if (e.key.toLowerCase() === 'f') $('full').click();
 });
 
-draw(); startPeer();
+render(); draw(); startPeer();
 </script></body></html>
