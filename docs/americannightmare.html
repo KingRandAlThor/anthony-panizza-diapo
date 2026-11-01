@@ -34,7 +34,7 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .pollside .qrbox{height:auto;width:100%;padding:.7vw;border-radius:1.2vw}
 .slide.cloud{justify-content:flex-start;padding-top:5vh}
 .slide.cloud h2{font-size:2.8vw;margin-bottom:1vh}
-#cloud{flex:1;position:relative;overflow:hidden;min-height:40vh}
+#cloud{position:absolute;inset:0;overflow:hidden;z-index:0}.slide.cloud>*:not(.pollwrap){position:relative;z-index:2;pointer-events:none;text-shadow:0 0 1.5vw #000}.pollwrap{position:static}.pollmain{position:static}.pollside{position:absolute;right:3vw;bottom:10vh;width:16vw;z-index:2;background:#0008;padding:1vw;border-radius:1.5vw}.tot{position:absolute;left:6vw;bottom:8vh;z-index:2;pointer-events:none}
 #cloud span{position:absolute;left:0;top:0;font-weight:800;line-height:1;white-space:nowrap;cursor:pointer;will-change:transform;text-shadow:0 0 .8vw currentColor;transition:font-size .6s,filter .4s}
 #cloud span i{display:inline-block;font-style:normal;animation:pop .8s cubic-bezier(.2,1.4,.4,1) both}
 #cloud span.fresh i{animation:pop .8s cubic-bezier(.2,1.4,.4,1) both,flash 1.6s ease-out}
@@ -217,7 +217,7 @@ function drawCloud(s) {
       sp.onclick = () => { delete state.words[s.id][word]; update(); };
       cloud.appendChild(sp);
     }
-    sp.style.fontSize = (base + (n / max) * base * 1.2 * (max > 1 ? 1 : 0)) + 'vw';
+    sp.style.fontSize = (base + Math.min(n - 1, 12) * base * .25) + 'vw';
   });
   $('tot').textContent = `${total} mot${total > 1 ? 's' : ''} envoyé${total > 1 ? 's' : ''}` + (!s.readonly && !state.open ? ' · envois fermés' : '');
   if (!raf) raf = requestAnimationFrame(loop);
