@@ -22,6 +22,7 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .stat.show{opacity:1;transform:none}
 .stat .v{font-size:4.6vw;font-weight:800;background:linear-gradient(90deg,var(--hl),#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stat .l{font-size:1.5vw;color:var(--mut);margin-top:1.5vh}
+.cls{margin-top:2.5vh;padding-top:2vh;border-top:1px solid #ffffff22;font-size:1.7vw;color:var(--b);line-height:1.5}.cls small{color:var(--mut);font-size:1.2vw}
 .src{position:absolute;left:6vw;right:6vw;bottom:7vh;font-size:1.1vw;color:#64748b}
 .slide.title,.slide.end,.slide.qr{align-items:center;text-align:center}
 .slide.title h1{font-size:6.6vw}.author{margin-top:5vh;font-size:1.8vw;color:var(--mut)}
@@ -61,10 +62,10 @@ const slides = [
     options: ["Je reste dans l'illusion", 'Je retourne à la réalité', 'Indécis'], refs: [60, 40, null] },
   { kind: 'content', kicker: "L'expérience de pensée", title: 'La machine à expérience de Nozick',
     bullets: ["Robert Nozick, <b>Anarchie, État et utopie</b> (1974)", "Une machine offre une vie parfaite, <b>indiscernable du réel</b>", "Nozick pensait que presque tout le monde refuserait : nous voulons <b>vivre</b>, pas seulement ressentir"],
-    stat: { v: '50 / 50', l: 'En réalité, la classe en ligne se divise à parts égales' }, src: "Source : Monsieur Phi, « La machine à expérience de Nozick »" },
+    stat: { v: '50 / 50', l: 'Vidéo : les gens se divisent à parts égales (indécis exclus)', cls: { poll: 'p1', labels: ['Branchés', 'Pas branchés'] } }, src: "Source : Monsieur Phi, « La machine à expérience de Nozick »" },
   { kind: 'content', kicker: 'Le twist', title: "Et si on inversait la situation ?",
     bullets: ["Felipe De Brigard (2010) : on dit aux gens qu'ils sont <b>déjà</b> dans la machine", "Beaucoup <b>refusent d'en sortir</b>", "Même question, même contenu, mais une réponse opposée : <b>seul le point de départ a changé</b>"],
-    stat: { v: '+ de 60 %', l: 'restent dans l\'illusion (indécis exclus)' }, src: "Source : De Brigard, « If you like it, does it matter if it's real? », Philosophical Psychology, 2010 ; Monsieur Phi" },
+    stat: { v: '+ de 60 %', l: 'Vidéo : restent dans l\'illusion (indécis exclus)', cls: { poll: 'p2', labels: ['Restent', 'Reviennent'] } }, src: "Source : De Brigard, « If you like it, does it matter if it's real? », Philosophical Psychology, 2010 ; Monsieur Phi" },
   { kind: 'content', kicker: 'Cohérence ?', title: 'Que révèlent nos deux réponses ?',
     bullets: ["La majorité est <b>cohérente</b> : illusion dans les deux cas, ou réalité dans les deux cas", "Les « curieux » (changer dans les deux cas) sont nettement <b>moins nombreux</b>", "Rester où l'on est est donc le choix le plus fréquent"],
     src: "Source : sondage complémentaire cité par Monsieur Phi" },
@@ -121,7 +122,7 @@ function render() {
   else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${s.title}</h1><div class="sub">${s.sub}</div><div class="author">${s.author}</div>`;
   else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
   else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
-    + (s.stat ? `<div class="stat"><div class="v">${s.stat.v}</div><div class="l">${s.stat.l}</div></div>` : '') + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
+    + (s.stat ? `<div class="stat"><div class="v">${s.stat.v}</div><div class="l">${s.stat.l}</div>${s.stat.cls ? `<div class="cls" data-p="${s.stat.cls.poll}" data-l="${s.stat.cls.labels.join('|')}"></div>` : ''}</div>` : '') + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
   else if (s.kind === 'poll') {
     el.innerHTML = `<div class="kicker">À vous de voter</div><div class="pollwrap"><div class="pollmain"><h2></h2><div id="rows"></div><div class="tot" id="tot"></div></div>`
       + `<div class="pollside"><div>Scannez pour voter</div><div class="qrbox">${qrSvg}</div></div></div>`;
@@ -139,6 +140,10 @@ function draw() {
   if (s.kind === 'content') {
     const n = s.bullets?.length || 0;
     document.querySelectorAll('li').forEach((li, i) => li.classList.toggle('show', i < state.step));
+    document.querySelectorAll('.cls').forEach(c => {
+      const v = state.votes[c.dataset.p] || {}, a = v[0] || 0, b = v[1] || 0, t = a + b, L = c.dataset.l.split('|');
+      c.innerHTML = t ? `<b>🏫 Notre classe</b><br>${L[0]} ${Math.round(a / t * 100)} % · ${L[1]} ${Math.round(b / t * 100)} %<br><small>${t} vote${t > 1 ? 's' : ''} (indécis exclus)</small>` : '<b>🏫 Notre classe</b><br><small>pas de vote enregistré</small>';
+    });
     document.querySelector('.stat')?.classList.toggle('show', state.step > n || (!n && state.step >= 1));
   }
   if (s.kind === 'poll') {
