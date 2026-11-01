@@ -52,7 +52,7 @@ body.dusk{--o1:#6d28d9;--o2:#b91c1c}body.red{--o1:#991b1b;--o2:#7c2d12}
 #o2{width:40vw;height:40vw;right:-8vw;bottom:-10vw;background:var(--o2);animation:drift2 22s ease-in-out infinite alternate}
 @keyframes drift1{to{transform:translate(30vw,25vh) scale(1.25)}}@keyframes drift2{to{transform:translate(-28vw,-20vh) scale(1.3)}}
 body.red .slide,body.dusk .slide{--hl:#fca5a5}
-body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 12vw #7f1d1d;animation:beat 3s ease-in-out infinite}
+body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 12vw #7f1d1d}
 @keyframes beat{50%{box-shadow:inset 0 0 18vw #b91c1c}}
 .ch{display:inline-block;-webkit-text-fill-color:#fee2e2;opacity:0;transform:translateY(5vh) rotate(6deg);animation:ch .7s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(var(--i)*60ms + .2s)}
 @keyframes ch{to{opacity:1;transform:none}}
@@ -71,6 +71,7 @@ body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow
 li.show::before{animation:ping 1.2s ease-out}@keyframes ping{0%{box-shadow:0 0 0 0 #ef4444aa}100%{box-shadow:0 0 0 1.2vw transparent}}
 .fig img,.vid{animation:in .8s ease}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ch,.slide.title .sub{opacity:1!important;transform:none!important}}
+.slide.static{animation:none;align-items:center;text-align:center;gap:3vh}.slide.static p{font-size:2.6vw;line-height:1.35;margin:0 0 2.5vh;max-width:80vw;color:#e2e8f0}.slide.static b{color:var(--hl)}.slide.static p:last-child{font-size:3.4vw}
 </style></head><body>
 <div class="orb" id="o1"></div><div class="orb" id="o2"></div><div id="prog"></div>
 <section id="slide" class="slide"></section>
@@ -120,12 +121,6 @@ const slides = [
   { kind: 'content', mood: 'calm', kicker: 'Retour au réel', title: 'De quoi avons-nous besoin pour être heureux ?',
     bullets: ["Maslow (1943) : nos besoins forment une <b>pyramide</b>", "À la base : manger, dormir, se loger… puis la <b>sécurité</b> : corps, emploi, stabilité", "Ensuite seulement : l'<b>appartenance</b>, l'<b>estime</b>, l'<b>accomplissement</b>", "Ces besoins ne sont pas une fiction : <b>sans la base, le reste s'effondre</b>"],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)' },
-  { kind: 'big', mood: 'calm', kicker: 'Un petit rappel', lines: [
-    { t: 'Nous, nous pouvons nous permettre d\'<b>oublier</b> nos besoins primaires.', cls: 'em' },
-    { t: 'Un toit, de quoi manger, la sécurité : cela nous semble <b>normal</b>.', cls: 'sm' },
-    { t: 'Ce n\'est pas un mérite. C\'est <b>de la chance</b> : celle de naître au bon endroit, au bon moment.', cls: 'sm' },
-    { t: 'Pour beaucoup de peuples, <b>opprimés</b>, en guerre ou contraints à l\'exil, la sécurité n\'est pas un débat philosophique : c\'est <b>un combat quotidien</b>.', cls: 'sm' },
-    { t: 'Ne les oublions pas.', cls: 'em' } ] },
   { kind: 'content', mood: 'calm', kicker: 'Analyse : philosophie politique', title: 'Le contrat social : de la liberté contre de la sécurité',
     bullets: ["Hobbes (<i>Léviathan</i>, 1651) : sans pouvoir commun, c'est la <b>guerre de tous contre tous</b>", "Pour y échapper, on <b>cède une part de sa liberté</b> à un pouvoir qui nous protège", "Locke, Rousseau : ce pouvoir doit <b>protéger</b> nos droits, pas les <b>sacrifier</b>", "Une phrase attribuée à Franklin : sacrifier une liberté essentielle pour un peu de sécurité <b>ne mérite ni l'une ni l'autre</b>"],
     stat: { v: '« guerre de tous contre tous »', l: 'Hobbes, Léviathan (1651)' } },
@@ -133,6 +128,11 @@ const slides = [
     bullets: ["Rawls (1971) : choisiriez-vous cette société <b>sans savoir</b> si vous naîtrez riche ou pauvre ? C'est le <b>voile d'ignorance</b>", "Aristote : l'être humain est un <b>animal politique</b>, il ne s'épanouit qu'avec les autres", "Une sécurité qui <b>divise</b> et qui <b>isole</b> détruit ce qu'elle prétend protéger"],
     stat: { v: 'Jusqu\'où ?', l: 'À quel prix accepteriez-vous d\'être en sécurité ?' } },
   { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, readonly: true, question: 'Revenons à vos mots du début…', hint: '' },
+  { kind: 'static', mood: 'calm', kicker: 'Un petit rappel', lines: [
+    'Nous, nous pouvons nous permettre d\'<b>oublier</b> nos besoins primaires.',
+    'Un toit, de quoi manger, la sécurité : cela nous semble <b>normal</b>. Ce n\'est pas un mérite, c\'est <b>de la chance</b> : celle de naître au bon endroit, au bon moment.',
+    'Pour beaucoup de peuples <b>opprimés</b>, en guerre ou contraints à l\'exil, la sécurité n\'est pas un débat philosophique : c\'est <b>un combat quotidien</b>.',
+    '<b>Ne les oublions pas.</b>' ] },
   { kind: 'big', mood: 'calm', kicker: 'Conclusion', lines: [
     { t: 'La <b>sécurité</b> est une condition du bonheur.', cls: 'sm' },
     { t: 'Mais elle n\'en est <b>pas la garantie</b>.', cls: 'sm' },
@@ -171,6 +171,7 @@ function render() {
   const lines = (s.lines || []).map(l => typeof l === 'string' ? { t: l } : l);
   if (s.kind === 'qr') el.innerHTML = `<h1>🔒 Rejoignez la discussion</h1><div class="sub">Scannez le QR code pour participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
   else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${[...s.title].map((c, i) => `<span class="ch" style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('')}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
+  else if (s.kind === 'static') el.innerHTML = `${kick}${lines.map(l => `<p>${l.t}</p>`).join('')}`;
   else if (s.kind === 'big') el.innerHTML = `${kick}<div class="big">${lines.map(l => `<div class="bl ${l.cls || ''}">${l.t}</div>`).join('')}${s.video ? `<div class="bl"><iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe></div>` : ''}</div>`;
   else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
   else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
