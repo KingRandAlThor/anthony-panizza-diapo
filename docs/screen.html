@@ -38,14 +38,12 @@ h1{font-size:3.2vw;margin:0 0 3vh}
 <script>
 const $ = id => document.getElementById(id);
 const defaults = [
-  { id: 1, question: "Une machine peut simuler pour vous une vie parfaitement heureuse, sans que vous sachiez que c'est une simulation. Vous branchez-vous ?", options: ['Oui, je me branche', 'Non, je reste dans la réalité', 'Je ne sais pas'] },
-  { id: 2, question: 'Et si votre vie actuelle était déjà dans la machine ?', options: ['Je veux en sortir', 'Je reste dedans', 'Ça ne change rien'] },
-  { id: 3, question: 'Pourquoi refuser la machine ? (la raison principale)', options: ['Je veux vivre des choses réelles', 'Je veux agir, pas seulement ressentir', 'Je veux être une certaine personne', 'Je ne refuse pas'] },
-  { id: 4, question: 'Le plaisir est-il le seul bien en soi ?', options: ['Oui', 'Non', 'Ça dépend'] },
-  { id: 5, question: 'Pour un proche très malheureux, le brancheriez-vous (sans son accord) ?', options: ['Oui', 'Non'] },
+  { id: 1, question: "Une machine peut simuler pour vous une vie parfaitement heureuse, sans que vous sachiez que c'est une simulation. Vous branchez-vous ?", options: ['Je me branche', 'Je ne me branche pas', 'Indécis'], refs: [50, 50, null] },
+  { id: 2, question: 'Vous êtes déjà dans une illusion (la machine). On vous propose de revenir à la réalité. Que faites-vous ?', options: ['Je reste dans l\'illusion', 'Je retourne à la réalité', 'Indécis'], refs: [60, 40, null] },
+  { id: 3, question: 'Vos deux réponses combinées : lesquelles ressemblent à vos choix ?', options: ['Illusion dans les deux cas (je me branche et je reste)', 'Réalité dans les deux cas', 'Curieux : je change de situation dans les deux cas', 'Autre combinaison'], refs: [null, null, null, null] },
 ];
-const state = JSON.parse(localStorage.hostState || 'null') || { polls: defaults, current: -1, open: true, reveal: false, votes: {}, voters: {} };
-const save = () => localStorage.hostState = JSON.stringify(state);
+const state = JSON.parse(localStorage.hostState2 || 'null') || { polls: defaults, current: -1, open: true, reveal: false, votes: {}, voters: {} };
+const save = () => localStorage.hostState2 = JSON.stringify(state);
 const poll = () => state.polls[state.current];
 const sameRefs = () => (poll()?.refs || []);
 const view = () => {
@@ -82,7 +80,8 @@ function draw() {
     rows.innerHTML = s.poll.options.map(() => '<div class="row"><div class="lab"><span></span><span><b class="reft"></b><i></i></span></div><div class="bar"><div class="fill"></div><div class="ref"></div></div></div>').join('');
   }
   [...rows.children].forEach((r, i) => {
-    const c = s.counts[i], pct = tot ? Math.round(c / tot * 100) : 0;
+    const refs = sameRefs(), cmp = state.reveal && refs.some(x => x != null), base = cmp ? s.counts.reduce((a, n, k) => a + (refs[k] != null ? n : 0), 0) : tot;
+    const c = s.counts[i], pct = base && (!cmp || refs[i] != null) ? Math.round(c / base * 100) : 0;
     const sp = r.querySelectorAll('span');
     sp[0].textContent = s.poll.options[i]; r.querySelector('i').textContent = ` (%)`;
     const ref = sameRefs()[i], show = state.reveal && ref != null;
