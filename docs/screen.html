@@ -99,9 +99,10 @@ const save = () => localStorage.deck1 = JSON.stringify(state);
 const S = () => slides[state.cur];
 const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + (s.stat ? 1 : 0) : 0;
 
+const pid = p => p.id + '.' + (state.ver?.[p.id] || 0);
 const view = () => {
   const s = S(), p = s.kind === 'poll' ? s : null, v = p ? state.votes[p.id] || {} : {};
-  return { intro: s.kind === 'qr', poll: p ? { id: p.id, question: p.question, options: p.options } : null,
+  return { intro: s.kind === 'qr', poll: p ? { id: pid(p), question: p.question, options: p.options } : null,
     open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
 };
 
@@ -177,13 +178,13 @@ const prev = () => {
 function onVote(conn, d) {
   const p = S();
   const err = e => conn.send({ t: 'ack', ok: false, error: e, pollId: d.pollId });
-  if (p.kind !== 'poll' || p.id !== d.pollId || !state.open || !d.clientId || !(d.option >= 0 && d.option < p.options.length)) return err('refused');
+  if (p.kind !== 'poll' || pid(p) !== d.pollId || !state.open || !d.clientId || !(d.option >= 0 && d.option < p.options.length)) return err('refused');
   const vs = state.voters[p.id] ||= {};
   if (d.clientId in vs) return err('dup');
   vs[d.clientId] = d.option;
   const v = state.votes[p.id] ||= {};
   v[d.option] = (v[d.option] || 0) + 1;
-  conn.send({ t: 'ack', ok: true, option: d.option, pollId: p.id });
+  conn.send({ t: 'ack', ok: true, option: d.option, pollId: d.pollId });
   update();
 }
 
@@ -201,7 +202,14 @@ function startPeer() {
 $('prev').onclick = prev; $('next').onclick = next;
 $('toggle').onclick = () => { state.open = !state.open; update(); };
 $('reveal').onclick = () => { state.reveal = !state.reveal; update(); };
-$('reset').onclick = () => { const p = S(); if (p.kind === 'poll' && confirm('Effacer les votes de cette question ?')) { delete state.votes[p.id]; delete state.voters[p.id]; update(); } };
+$('reset').onclick = () => {
+  const s = S(), id = s.kind === 'poll' ? s.id : s.stat?.cls?.poll;
+  if (!id) return alert('Placez-vous sur une diapo de vote (ou de comparaison) pour remettre à zéro.');
+  if (!confirm('Effacer les votes de cette question ?')) return;
+  delete state.votes[id]; delete state.voters[id];
+  (state.ver ||= {})[id] = (state.ver[id] || 0) + 1;
+  update();
+};
 $('full').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 addEventListener('keydown', e => {
   if (['ArrowRight', 'PageDown', 'Enter'].includes(e.key)) next();
