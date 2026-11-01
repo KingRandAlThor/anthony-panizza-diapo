@@ -25,16 +25,16 @@ function renderWords() {
     app.querySelector('h1').textContent = w.question;
     const send = () => {
       const i = document.getElementById('wi'), word = i.value.trim();
-      if (!word || (sent()[w.id] || 0) >= w.max) return;
+      if (!word || (w.max && (sent()[w.id] || 0) >= w.max)) return;
       conn.send({ t: 'word', pollId: w.id, word, clientId: cid });
       i.value = '';
     };
     document.getElementById('ws').onclick = send;
     document.getElementById('wi').onkeydown = e => e.key === 'Enter' && send();
   }
-  const left = w.max - (sent()[w.id] || 0);
+  const n = sent()[w.id] || 0, left = w.max ? w.max - n : Infinity;
   document.getElementById('wi').disabled = document.getElementById('ws').disabled = left <= 0 || !s.open;
-  document.getElementById('wm').textContent = msg || (!s.open ? 'Les envois sont fermés.' : left > 0 ? `Il vous reste ${left} mot${left > 1 ? 's' : ''}` : 'Merci ! Regardez l\'écran 👀');
+  document.getElementById('wm').textContent = msg || (!s.open ? 'Les envois sont fermés.' : left === Infinity ? (n ? n + ' mot' + (n > 1 ? 's' : '') + ' envoyé' + (n > 1 ? 's' : '') + ' · continuez !' : 'Autant de mots que vous voulez') : left > 0 ? `Il vous reste ${left} mot${left > 1 ? 's' : ''}` : 'Merci ! Regardez l\'écran 👀');
 }
 const sent = () => JSON.parse(localStorage.sentWords || '{}');
 

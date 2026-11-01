@@ -35,7 +35,11 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .slide.cloud{justify-content:flex-start;padding-top:5vh}
 .slide.cloud h2{font-size:2.8vw;margin-bottom:1vh}
 #cloud{flex:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:1vh 2vw;overflow:hidden;padding:2vh 0}
-#cloud span{font-weight:800;line-height:1.05;cursor:pointer;animation:pop .6s cubic-bezier(.2,1.4,.4,1);transition:font-size .6s}
+#cloud span{font-weight:800;line-height:1.05;cursor:pointer;display:inline-block;animation:pop .7s cubic-bezier(.2,1.4,.4,1),float var(--d,5s) ease-in-out var(--dl,0s) infinite alternate;transition:font-size .6s,filter .4s,transform .4s;text-shadow:0 0 .8vw currentColor}
+#cloud span.fresh{animation:pop .7s cubic-bezier(.2,1.4,.4,1),flash 1.4s ease-out,float var(--d,5s) ease-in-out var(--dl,0s) infinite alternate}
+#cloud span.spot{transform:scale(1.35) rotate(-3deg);filter:brightness(1.5) drop-shadow(0 0 1.2vw currentColor);z-index:2;animation:none}
+@keyframes float{0%{transform:translate(0,0) rotate(var(--r,-2deg))}100%{transform:translate(var(--x,.6vw),var(--y,-1.2vh)) rotate(calc(var(--r,-2deg) * -1))}}
+@keyframes flash{0%{filter:brightness(3) drop-shadow(0 0 2vw #fff)}100%{filter:none}}
 @keyframes pop{from{opacity:0;transform:scale(.2) rotate(-8deg)}to{opacity:1;transform:none}}
 .tot{font-size:1.6vw;color:var(--mut)}
 #bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.2;transition:opacity .2s;z-index:5}
@@ -56,7 +60,7 @@ const $ = id => document.getElementById(id);
 const slides = [
   { kind: 'qr' },
   { kind: 'title', kicker: '', title: 'Qu\'est-ce qui garantit notre bonheur ?', sub: '', author: '' },
-  { kind: 'cloud', id: 'w1', max: 3, question: 'Selon vous, quelle est la chose la plus importante pour garantir votre bonheur ?', hint: 'Envoyez jusqu\'à 3 mots depuis votre téléphone' },
+  { kind: 'cloud', id: 'w1', max: 0, question: 'Selon vous, quelle est la chose la plus importante pour garantir votre bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
   { kind: 'content', kicker: 'Le film', title: 'The Purge (2013)',
     video: 'K0LLaybEuzA',
     bullets: ["Réalisé par <b>James DeMonaco</b>, dans une Amérique du futur", "Une nuit par an, <b>tous les crimes sont légaux</b> : la « Purge »", "Le reste de l'année, le gouvernement vante <b>un chômage et une criminalité quasi nuls</b>", "Une société « heureuse »… <b>au prix d'une nuit sans loi</b>"],
@@ -77,7 +81,7 @@ const slides = [
     stat: { v: '2ᵉ marche', l: 'la sécurité vient juste après les besoins vitaux' }, src: "Source : Abraham Maslow, « A Theory of Human Motivation », 1943" },
   { kind: 'content', kicker: 'Droit', title: 'La sûreté, un droit fondamental', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Declaration_of_the_Rights_of_Man_and_of_the_Citizen_in_1789.jpg?width=700', cap: 'Déclaration des droits de l\'homme et du citoyen (1789)',
     bullets: ["Déclaration des droits de l'homme de <b>1789</b>, article 2", "Les droits naturels : <b>liberté, propriété, sûreté</b> et résistance à l'oppression", "La sûreté protège chacun <b>contre l'arbitraire</b> et la violence", "Sans elle, les autres libertés <b>n'existent que sur le papier</b>"] },
-  { kind: 'cloud', id: 'w1', max: 3, readonly: true, question: 'Et vos mots à vous ? La sécurité apparaît-elle ?', hint: 'Regardez ce que la classe a choisi' },
+  { kind: 'cloud', id: 'w1', max: 0, readonly: true, question: 'Et vos mots à vous ? La sécurité apparaît-elle ?', hint: 'Regardez ce que la classe a choisi' },
   { kind: 'content', kicker: 'Nuance', title: 'Sécurité ≠ bonheur à elle seule',
     bullets: ["La sécurité est <b>une condition</b>, pas une garantie du bonheur", "Une sécurité absolue peut <b>coûter la liberté</b> (surveillance, contrôle)", "Le film le montre aussi : <b>la peur permet de gouverner</b>", "Le défi : <b>trouver l'équilibre</b> entre sécurité et liberté"] },
   { kind: 'content', kicker: 'Conclusion', title: 'Pas de bonheur sans sécurité',
@@ -125,10 +129,17 @@ function render() {
 
 const colors = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9', '#f472b6'];
 const hash = w => [...w].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+let firstDraw = true;
+setInterval(() => {
+  const spans = [...document.querySelectorAll('#cloud span')];
+  spans.forEach(x => x.classList.remove('spot'));
+  if (spans.length) spans[Math.floor(Math.random() * spans.length)].classList.add('spot');
+}, 2200);
 function drawCloud(s) {
+  firstDraw = !cloud.children.length;
   const id = s.id + '.' + (state.ver[s.id] || 0), w = state.words[s.id] || {}, cloud = $('cloud');
   const entries = Object.entries(w), max = Math.max(1, ...entries.map(e => e[1])), total = entries.reduce((a, e) => a + e[1], 0);
-  const base = entries.length > 25 ? 2.2 : entries.length > 12 ? 3 : 3.8;
+  const base = entries.length > 60 ? 1.5 : entries.length > 35 ? 1.9 : entries.length > 20 ? 2.4 : entries.length > 10 ? 3.1 : 3.8;
   const present = new Set(entries.map(e => e[0]));
   [...cloud.children].forEach(c => { if (!present.has(c.dataset.w)) c.remove(); });
   entries.forEach(([word, n]) => {
@@ -137,6 +148,10 @@ function drawCloud(s) {
       sp = document.createElement('span'); sp.dataset.w = word; sp.textContent = word;
       sp.style.color = colors[hash(word) % colors.length];
       sp.title = 'Cliquer pour retirer ce mot';
+      const h = hash(word);
+      sp.style.setProperty('--d', (3 + h % 40 / 10) + 's'); sp.style.setProperty('--dl', -(h % 30 / 10) + 's');
+      sp.style.setProperty('--x', ((h % 11) - 5) / 5 + 'vw'); sp.style.setProperty('--y', ((h % 7) - 3) / 2 + 'vh'); sp.style.setProperty('--r', ((h % 9) - 4) / 2 + 'deg');
+      if (!firstDraw) { sp.classList.add('fresh'); setTimeout(() => sp.classList.remove('fresh'), 1500); }
       sp.onclick = () => { delete state.words[s.id][word]; update(); };
       cloud.appendChild(sp);
     }
@@ -174,7 +189,7 @@ function onWord(conn, d) {
   const word = String(d.word || '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 24);
   if (!word) return err('refused');
   const vs = state.wvoters[wid(s)] ||= {}, used = vs[d.clientId] || 0;
-  if (used >= s.max) return err('max', used);
+  if (s.max && used >= s.max) return err('max', used);
   vs[d.clientId] = used + 1;
   const w = state.words[s.id] ||= {};
   w[word] = (w[word] || 0) + 1;
