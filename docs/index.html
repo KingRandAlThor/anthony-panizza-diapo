@@ -20,7 +20,7 @@ let s, conn, msg = '', lastPoll;
 function render() {
   if (!hostId) { app.innerHTML = '<p class="msg">Scannez le QR code affiché à l\'écran.</p>'; return; }
   if (!s) { app.innerHTML = '<p class="msg">Connexion…</p>'; return; }
-  if (!s.poll) { app.innerHTML = '<p class="msg">Aucune question pour le moment.</p>'; return; }
+  if (!s.poll) { app.innerHTML = '<h1>🧠 Vous êtes dans la machine !</h1><p class="msg">' + (s.intro ? 'La première question arrive…' : 'Aucune question pour le moment.') + '</p>'; return; }
   const v = voted()[s.poll.id], has = v !== undefined;
   app.innerHTML = '<h1></h1>' + s.poll.options.map(() => '<button></button>').join('') + '<p class="msg"></p>';
   app.querySelector('h1').textContent = s.poll.question;

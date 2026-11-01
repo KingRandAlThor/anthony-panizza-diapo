@@ -10,21 +10,26 @@ h1{font-size:3.2vw;margin:0 0 3vh}
 .fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);width:0;transition:width .6s ease}
 .side{width:22vw;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:2vh}
 .side #qr{background:#fff;border-radius:16px;padding:8px;box-sizing:border-box}.side #qr svg{width:100%;height:auto;display:block}
+#intro{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:2vh;text-align:center;background:#0f172a;padding-bottom:6vh}
+#intro h1{font-size:4.5vw;margin:0}#intro #qr2{background:#fff;border-radius:2vw;padding:1.2vw;height:58vh;aspect-ratio:1}#intro #qr2 svg{width:100%;height:100%;display:block}
+#intro .small{font-size:1.6vw}#intro .sub{font-size:2.2vw;color:#94a3b8}
+.bar{position:relative}.ref{position:absolute;top:-3px;bottom:-3px;width:4px;background:#facc15;border-radius:2px;display:none;transition:left .6s ease}.reft{color:#facc15;display:none;margin-right:1vw}
 .small{color:#94a3b8;font-size:1.1vw;word-break:break-all}.tot{font-size:1.8vw;color:#94a3b8;margin-top:2vh}
 #bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.25;transition:opacity .2s}
 #bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar span{color:#94a3b8;font-size:.85rem;margin-left:auto}
 #editor{position:fixed;inset:0;background:#0f172acc;display:none;padding:5vh 10vw;box-sizing:border-box;flex-direction:column;gap:8px}
 #editor textarea{flex:1;font-family:monospace;font-size:1rem}
 </style></head><body>
+<div id="intro"><h1>🧠 Rejoignez ma machine à expérience</h1><div class="sub">Scannez pour entrer dans la machine et voter depuis votre téléphone</div><div id="qr2"></div><div class="small" id="url2"></div><div class="sub" id="cnt"></div></div>
 <div class="main"><h1 id="q">Démarrage…</h1><div id="rows"></div><div class="tot" id="tot"></div></div>
 <div class="side"><div style="font-size:1.8vw">Scannez pour voter</div><div id="qr"></div><div class="small" id="url"></div></div>
 <div id="bar">
   <button id="prev">◀</button><button id="next">▶</button>
-  <button id="toggle"></button><button id="reset">Remise à zéro</button><button id="edit">Éditer les questions</button>
-  <span id="n"></span><span>← → changer · Espace ouvrir/fermer · E éditer</span>
+  <button id="toggle"></button><button id="reveal">📺 Stats vidéo</button><button id="reset">Remise à zéro</button><button id="edit">Éditer les questions</button>
+  <span id="n"></span><span>← → changer · Espace ouvrir/fermer · R stats vidéo · E éditer</span>
 </div>
 <div id="editor">
-  <div>Une question par bloc, séparés par une ligne vide. 1ère ligne = question, lignes suivantes = options.</div>
+  <div>Une question par bloc, séparés par une ligne vide. 1ère ligne = question, puis options. Ajoutez « :: 87 » après une option pour le % de la vidéo.</div>
   <textarea id="ed"></textarea>
   <div><button id="save">Enregistrer</button> <button id="cancel">Annuler</button></div>
 </div>
@@ -39,12 +44,13 @@ const defaults = [
   { id: 4, question: 'Le plaisir est-il le seul bien en soi ?', options: ['Oui', 'Non', 'Ça dépend'] },
   { id: 5, question: 'Pour un proche très malheureux, le brancheriez-vous (sans son accord) ?', options: ['Oui', 'Non'] },
 ];
-const state = JSON.parse(localStorage.hostState || 'null') || { polls: defaults, current: 0, open: true, votes: {}, voters: {} };
+const state = JSON.parse(localStorage.hostState || 'null') || { polls: defaults, current: -1, open: true, reveal: false, votes: {}, voters: {} };
 const save = () => localStorage.hostState = JSON.stringify(state);
 const poll = () => state.polls[state.current];
+const sameRefs = () => (poll()?.refs || []);
 const view = () => {
   const p = poll(), v = p ? state.votes[p.id] || {} : {};
-  return { poll: p || null, open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
+  return { intro: state.current < 0, poll: p || null, open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
 };
 
 // Identifiant stable pour que le QR code reste valable après rechargement
@@ -53,26 +59,35 @@ const voterUrl = new URL('./?h=' + hostId, location.href).href;
 const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
 $('qr').innerHTML = qr.createSvgTag({ scalable: true, margin: 0 });
 $('url').textContent = voterUrl;
+const qr2 = qrcode(0, 'M'); qr2.addData(voterUrl); qr2.make();
+$('qr2').innerHTML = qr2.createSvgTag({ scalable: true, margin: 0 }); $('url2').textContent = voterUrl;
 
 const conns = new Set();
 function broadcast() { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); }
 
 function draw() {
   const s = view();
+  const intro = state.current < 0;
+  $('intro').style.display = intro ? 'flex' : 'none';
+  document.querySelector('.main').style.visibility = document.querySelector('.side').style.visibility = intro ? 'hidden' : 'visible';
+  $('cnt').textContent = conns.size + ' personne' + (conns.size > 1 ? 's' : '') + ' connectée' + (conns.size > 1 ? 's' : '');
   $('toggle').textContent = s.open ? '⏸ Fermer les votes' : '▶ Ouvrir les votes';
-  $('n').textContent = `${state.current + 1}/${state.polls.length} · ${conns.size} connecté(s)`;
+  $('n').textContent = `${state.current < 0 ? 'Accueil' : state.current + 1}/${state.polls.length} · ${conns.size} connecté(s)`;
   if (!s.poll) { $('q').textContent = '—'; $('rows').innerHTML = ''; return; }
   $('q').textContent = s.poll.question;
   const tot = s.counts.reduce((a, b) => a + b, 0);
   const rows = $('rows');
   if (rows.dataset.p != s.poll.id || rows.children.length !== s.poll.options.length) {
     rows.dataset.p = s.poll.id;
-    rows.innerHTML = s.poll.options.map(() => '<div class="row"><div class="lab"><span></span><span></span></div><div class="bar"><div class="fill"></div></div></div>').join('');
+    rows.innerHTML = s.poll.options.map(() => '<div class="row"><div class="lab"><span></span><span><b class="reft"></b><i></i></span></div><div class="bar"><div class="fill"></div><div class="ref"></div></div></div>').join('');
   }
   [...rows.children].forEach((r, i) => {
     const c = s.counts[i], pct = tot ? Math.round(c / tot * 100) : 0;
     const sp = r.querySelectorAll('span');
-    sp[0].textContent = s.poll.options[i]; sp[1].textContent = `${c} (${pct}%)`;
+    sp[0].textContent = s.poll.options[i]; r.querySelector('i').textContent = ` (%)`;
+    const ref = sameRefs()[i], show = state.reveal && ref != null;
+    r.querySelector('.reft').style.display = show ? 'inline' : 'none'; r.querySelector('.reft').textContent = show ? 'Vidéo : ' + ref + '%' : '';
+    r.querySelector('.ref').style.display = show ? 'block' : 'none'; r.querySelector('.ref').style.left = 'calc(' + (ref || 0) + '% - 2px)';
     r.querySelector('.fill').style.width = pct + '%';
   });
   $('tot').textContent = `${tot} vote${tot > 1 ? 's' : ''}`;
@@ -102,17 +117,21 @@ function startPeer() {
   peer.on('error', e => { if (e.type === 'unavailable-id') { document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; } });
 }
 
-const go = i => { state.current = Math.max(0, Math.min(state.polls.length - 1, i)); update(); };
+const go = i => { state.current = Math.max(-1, Math.min(state.polls.length - 1, i)); state.reveal = false; update(); };
 $('prev').onclick = () => go(state.current - 1); $('next').onclick = () => go(state.current + 1);
+$('reveal').onclick = () => { state.reveal = !state.reveal; update(); };
 $('toggle').onclick = () => { state.open = !state.open; update(); };
 $('reset').onclick = () => { const p = poll(); if (p && confirm('Effacer les votes de cette question ?')) { delete state.votes[p.id]; delete state.voters[p.id]; update(); } };
-function openEditor() { $('ed').value = state.polls.map(p => [p.question, ...p.options].join('\n')).join('\n\n'); $('editor').style.display = 'flex'; }
+function openEditor() { $('ed').value = state.polls.map(p => [p.question, ...p.options.map((o, i) => o + (p.refs?.[i] != null ? ' :: ' + p.refs[i] : ''))].join('\n')).join('\n\n'); $('editor').style.display = 'flex'; }
 $('edit').onclick = openEditor; $('cancel').onclick = () => $('editor').style.display = 'none';
 $('save').onclick = () => {
   const polls = $('ed').value.split(/\n\s*\n/).map(b => b.trim().split('\n').map(l => l.trim()).filter(Boolean)).filter(l => l.length >= 3)
-    .map((l, i) => ({ id: Date.now() + i, question: l[0], options: l.slice(1) }));
+    .map((l, i) => {
+      const parts = l.slice(1).map(x => { const m = x.split('::'); const n = parseFloat(m[1]); return [m[0].trim(), m.length > 1 && !isNaN(n) ? n : null]; });
+      return { id: Date.now() + i, question: l[0], options: parts.map(p => p[0]), refs: parts.map(p => p[1]) };
+    });
   if (polls.length) {
-    state.polls = polls; state.current = 0; state.votes = {}; state.voters = {};
+    state.polls = polls; state.current = -1; state.votes = {}; state.voters = {};
     update(); $('editor').style.display = 'none';
   }
 };
@@ -121,6 +140,7 @@ addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' || e.key === 'PageDown') go(state.current + 1);
   else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(state.current - 1);
   else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
+  else if (e.key.toLowerCase() === 'r') $('reveal').click();
   else if (e.key.toLowerCase() === 'e') openEditor();
 });
 
