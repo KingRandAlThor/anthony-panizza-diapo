@@ -90,7 +90,7 @@ const slides = [
     { t: 'Aristote : l\'<b>eudaimonia</b>, bien vivre en épanouissant ce qui fait de nous des humains', cls: 'sm' },
     { t: 'Épicure : l\'<b>ataraxie</b>, la tranquillité de l\'âme, sans trouble ni crainte', cls: 'sm' },
     { t: 'Alors, <b>qu\'est-ce qui nous rend heureux</b> ?', cls: 'em' } ] },
-  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui garantit le bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
+  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui vous rend heureux ?', hint: '' },
   { kind: 'content', mood: 'calm', kicker: 'Psychologie', title: 'Avant d\'être heureux, il faut tenir debout',
     bullets: ["Maslow (1943) : nos besoins forment une <b>pyramide</b>", "À la base : manger, dormir… puis la <b>sécurité</b> : corps, emploi, ressources, stabilité", "Sans ces bases, difficile de viser l'<b>appartenance</b>, l'<b>estime</b> ou l'<b>accomplissement</b>", "La sécurité est-elle alors <b>une condition</b> du bonheur… ou <b>le bonheur lui-même</b> ?"],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)' },
@@ -170,7 +170,7 @@ function render() {
     + ((statsOf(s).length || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${statsOf(s).length ? `<div class="srow">${statsOf(s).map(x => `<div class="stat"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
   else if (s.kind === 'cloud') {
     el.innerHTML = `<div class="kicker">${s.readonly ? 'Nuage de mots de la classe' : 'À vous : envoyez vos mots'}</div><h2></h2><div class="pollwrap"><div class="pollmain"><div id="cloud"></div><div class="tot" id="tot"></div></div>`
-      + (s.readonly ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
+      + (true ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
     el.querySelector('h2').textContent = s.question;
   }
   $('prog').style.width = (state.cur + 1) / slides.length * 100 + '%';
@@ -291,6 +291,11 @@ addEventListener('keydown', e => {
   else if (['ArrowLeft', 'PageUp'].includes(e.key)) prev();
   else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
   else if (e.key.toLowerCase() === 'f') $('full').click();
+  else if (e.key.toLowerCase() === 'q') {
+    const o = $('qro') || Object.assign(document.createElement('div'), { id: 'qro' });
+    if (!o.parentNode) { o.style.cssText = 'position:fixed;inset:0;z-index:9;background:#000d;display:none;align-items:center;justify-content:center'; o.innerHTML = `<div class="qrbox" style="height:70vh">${qrSvg}</div>`; o.onclick = () => o.style.display = 'none'; document.body.appendChild(o); }
+    o.style.display = o.style.display === 'flex' ? 'none' : 'flex';
+  }
 });
 
 render(); draw(); startPeer();
