@@ -220,7 +220,7 @@ function countUp(v) {
 function draw() {
   const s = S();
   $('toggle').textContent = state.open ? '⏸ Fermer les envois' : '▶ Ouvrir les envois';
-  $('n').textContent = `${state.cur + 1}/${slides.length} · ${conns.size} connecté(s)`;
+  $('n').textContent = `${state.cur + 1}/${slides.length} · ${window.peerStatus || '⏳ connexion…'} · ${conns.size} connecté(s)`;
   if ($('cnt')) $('cnt').textContent = conns.size + ' personne' + (conns.size > 1 ? 's' : '') + ' connectée' + (conns.size > 1 ? 's' : '');
   if (s.kind === 'content') {
     const n = s.bullets?.length || 0;
@@ -265,13 +265,18 @@ function onWord(conn, d) {
 
 function startPeer() {
   const peer = new Peer(hostId);
+  const st = t => { const n = $('n'); window.peerStatus = t; n.dataset.p = t; draw(); };
+  peer.on('open', () => st('🟢 en ligne'));
   peer.on('connection', conn => {
     conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
     conn.on('data', d => d.t === 'word' && onWord(conn, d));
     conn.on('close', () => { conns.delete(conn); draw(); });
   });
   peer.on('disconnected', () => peer.reconnect());
-  peer.on('error', e => { if (e.type === 'unavailable-id') document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; });
+  peer.on('error', e => {
+    if (e.type === 'unavailable-id') { st('🟠 identifiant occupé, nouvel essai…'); peer.destroy(); setTimeout(startPeer, 4000); }
+    else st('🔴 ' + e.type);
+  });
 }
 
 $('prev').onclick = prev; $('next').onclick = next;

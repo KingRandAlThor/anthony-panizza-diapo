@@ -87,4 +87,5 @@ function connect() {
 }
 render();
 if (hostId) connect();
+setInterval(() => { if (hostId && !s) app.innerHTML = '<p class="msg">Connexion à l\'écran impossible pour l\'instant…<br>Vérifiez que la page du diaporama est ouverte sur l\'ordinateur (ou rechargez-la), puis patientez quelques secondes.</p>'; }, 8000);
 </script></body></html>
