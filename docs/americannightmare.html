@@ -60,9 +60,9 @@ body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow
 .slide.title .kicker{animation:in 1s ease}
 .slide.big{align-items:center;text-align:center;animation:zoom .7s ease}.slide.content{animation:in .6s ease}
 @keyframes zoom{from{opacity:0;transform:scale(1.06);filter:blur(1vw)}to{opacity:1;transform:none;filter:none}}
-.big{display:flex;flex-direction:column;gap:3.2vh;align-items:center;max-width:82vw}
+.bigbox{display:flex;flex-direction:column;gap:3.2vh;align-items:center;max-width:82vw;margin:0 auto}.slide.big,.slide.static,.slide.title,.slide.end{align-items:center;text-align:center}.slide.big .kicker,.slide.static .kicker,.slide.title .kicker{margin-bottom:4vh}
 .bl{font-size:3.2vw;line-height:1.25;opacity:0;transform:translateY(3vh) scale(.96);filter:blur(.8vw);transition:all .9s cubic-bezier(.2,.8,.2,1)}
-.bl.show{opacity:1;transform:none;filter:none}.bl.show.old{opacity:.45}
+.bl.show{opacity:1;transform:none;filter:none}.bl.show.old{opacity:.62}
 .bl b{color:var(--hl)}.bl.sm{font-size:2.3vw;color:#e2e8f0}.bl.em{font-size:4vw;font-weight:800;background:linear-gradient(90deg,#fff,var(--hl));-webkit-background-clip:text;background-clip:text;color:transparent}
 .bl.em b{-webkit-text-fill-color:var(--hl)}.bl.show.em.old{opacity:1}
 .bl .vid{width:46vw}
@@ -71,7 +71,7 @@ body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow
 li.show::before{animation:ping 1.2s ease-out}@keyframes ping{0%{box-shadow:0 0 0 0 #ef4444aa}100%{box-shadow:0 0 0 1.2vw transparent}}
 .fig img,.vid{animation:in .8s ease}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ch,.slide.title .sub{opacity:1!important;transform:none!important}}
-.slide.static{animation:none;align-items:center;text-align:center;gap:3vh}.slide.static p{font-size:2.6vw;line-height:1.35;margin:0 0 2.5vh;max-width:80vw;color:#e2e8f0}.slide.static b{color:var(--hl)}.slide.static p:last-child{font-size:3.4vw}
+.slide.static{animation:none;align-items:center;text-align:center;gap:3vh}.slide.static p{font-size:2.5vw;line-height:1.35;margin:0 0 2.5vh;max-width:80vw;color:#e2e8f0}.slide.static b{color:var(--hl)}.slide.static p:last-child{font-size:3.4vw}
 </style></head><body>
 <div class="orb" id="o1"></div><div class="orb" id="o2"></div><div id="prog"></div>
 <section id="slide" class="slide"></section>
@@ -138,7 +138,7 @@ const slides = [
     { t: 'Mais elle n\'en est <b>pas la garantie</b>.', cls: 'sm' },
     { t: 'Une sécurité absolue, au prix de notre empathie, mène à <b>une prison dorée, paranoïaque et angoissante</b>.', cls: 'sm' },
     { t: 'Le vrai bonheur a besoin de ce que cette société a détruit : <b>le lien humain, la confiance, l\'empathie</b>.', cls: 'em' } ] },
-  { kind: 'end', mood: 'calm', title: 'Merci !', sub: 'Des questions ?' },
+  { kind: 'end', mood: 'calm', title: 'Merci !' },
 ];
 
 const state = Object.assign({ cur: 0, step: 0, open: true, words: {}, wvoters: {}, ver: {} }, JSON.parse(localStorage.deck2 || 'null') || {});
@@ -172,8 +172,8 @@ function render() {
   if (s.kind === 'qr') el.innerHTML = `<h1>🔒 Rejoignez la discussion</h1><div class="sub">Scannez le QR code pour participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
   else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${[...s.title].map((c, i) => `<span class="ch" style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('')}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
   else if (s.kind === 'static') el.innerHTML = `${kick}${lines.map(l => `<p>${l.t}</p>`).join('')}`;
-  else if (s.kind === 'big') el.innerHTML = `${kick}<div class="big">${lines.map(l => `<div class="bl ${l.cls || ''}">${l.t}</div>`).join('')}${s.video ? `<div class="bl"><iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe></div>` : ''}</div>`;
-  else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
+  else if (s.kind === 'big') el.innerHTML = `${kick}<div class="bigbox">${lines.map(l => `<div class="bl ${l.cls || ''}">${l.t}</div>`).join('')}${s.video ? `<div class="bl"><iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe></div>` : ''}</div>`;
+  else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
   else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
     + ((statsOf(s).length || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${statsOf(s).length ? `<div class="srow">${statsOf(s).map(x => `<div class="stat"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
   else if (s.kind === 'cloud') {
