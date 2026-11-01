@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anthony Panizza DIAPO - Vote</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#fff;padding:20px;min-height:100vh;box-sizing:border-box}
+h1{font-size:1.4rem;margin:0 0 20px}
+button{display:block;width:100%;padding:18px;margin:10px 0;font-size:1.1rem;border:0;border-radius:12px;background:#3b82f6;color:#fff}
+button:active{background:#2563eb}button.sel{background:#22c55e}button:disabled{opacity:.6}
+.msg{margin-top:16px;color:#94a3b8;text-align:center}
+</style></head><body>
+<div id="app"><p class="msg">Connexion…</p></div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const app = document.getElementById('app');
+const hostId = new URLSearchParams(location.search).get('h');
+const cid = localStorage.cid ||= (crypto.randomUUID?.() || String(Math.random()).slice(2));
+const voted = () => JSON.parse(localStorage.voted || '{}');
+let s, conn, msg = '', lastPoll;
+
+function render() {
+  if (!hostId) { app.innerHTML = '<p class="msg">Scannez le QR code affiché à l\'écran.</p>'; return; }
+  if (!s) { app.innerHTML = '<p class="msg">Connexion…</p>'; return; }
+  if (!s.poll) { app.innerHTML = '<p class="msg">Aucune question pour le moment.</p>'; return; }
+  const v = voted()[s.poll.id], has = v !== undefined;
+  app.innerHTML = '<h1></h1>' + s.poll.options.map(() => '<button></button>').join('') + '<p class="msg"></p>';
+  app.querySelector('h1').textContent = s.poll.question;
+  app.querySelectorAll('button').forEach((b, i) => {
+    b.textContent = s.poll.options[i];
+    b.disabled = has || !s.open;
+    if (v === i) b.className = 'sel';
+    b.onclick = () => conn.send({ t: 'vote', pollId: s.poll.id, option: i, clientId: cid });
+  });
+  app.querySelector('.msg').textContent = has ? (msg || 'Vote enregistré.') : s.open ? 'Touchez votre choix' : 'Les votes sont fermés.';
+}
+
+function connect() {
+  const peer = new Peer();
+  peer.on('open', () => {
+    conn = peer.connect(hostId, { reliable: true });
+    conn.on('data', d => {
+      if (d.t === 'state') {
+        s = d.state;
+        if (s.poll?.id !== lastPoll) { msg = ''; lastPoll = s.poll?.id; }
+        render();
+      } else if (d.t === 'ack') {
+        const v = voted();
+        if (d.ok) { v[d.pollId] = d.option; msg = 'Merci, vote enregistré !'; }
+        else if (d.error === 'dup') { v[d.pollId] = v[d.pollId] ?? -1; msg = 'Vous avez déjà voté.'; }
+        else msg = 'Vote impossible.';
+        localStorage.voted = JSON.stringify(v);
+        render();
+      }
+    });
+    conn.on('close', () => setTimeout(() => { peer.destroy(); s = null; render(); connect(); }, 1500));
+  });
+  peer.on('error', () => setTimeout(() => { peer.destroy(); connect(); }, 2000));
+}
+render();
+if (hostId) connect();
+</script></body></html>

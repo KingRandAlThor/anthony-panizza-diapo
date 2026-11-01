@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anthony Panizza DIAPO - Écran</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#fff;height:100vh;display:flex;gap:4vw;padding:4vh 4vw 9vh;box-sizing:border-box}
+.main{flex:1;display:flex;flex-direction:column}
+h1{font-size:3.2vw;margin:0 0 3vh}
+.row{margin:1.2vh 0}.lab{display:flex;justify-content:space-between;font-size:2vw;margin-bottom:.6vh}
+.bar{background:#1e293b;border-radius:10px;height:4.5vh;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);width:0;transition:width .6s ease}
+.side{width:22vw;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:2vh}
+.side #qr{background:#fff;border-radius:16px;padding:8px;box-sizing:border-box}.side #qr svg{width:100%;height:auto;display:block}
+.small{color:#94a3b8;font-size:1.1vw;word-break:break-all}.tot{font-size:1.8vw;color:#94a3b8;margin-top:2vh}
+#bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.25;transition:opacity .2s}
+#bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar span{color:#94a3b8;font-size:.85rem;margin-left:auto}
+#editor{position:fixed;inset:0;background:#0f172acc;display:none;padding:5vh 10vw;box-sizing:border-box;flex-direction:column;gap:8px}
+#editor textarea{flex:1;font-family:monospace;font-size:1rem}
+</style></head><body>
+<div class="main"><h1 id="q">Démarrage…</h1><div id="rows"></div><div class="tot" id="tot"></div></div>
+<div class="side"><div style="font-size:1.8vw">Scannez pour voter</div><div id="qr"></div><div class="small" id="url"></div></div>
+<div id="bar">
+  <button id="prev">◀</button><button id="next">▶</button>
+  <button id="toggle"></button><button id="reset">Remise à zéro</button><button id="edit">Éditer les questions</button>
+  <span id="n"></span><span>← → changer · Espace ouvrir/fermer · E éditer</span>
+</div>
+<div id="editor">
+  <div>Une question par bloc, séparés par une ligne vide. 1ère ligne = question, lignes suivantes = options.</div>
+  <textarea id="ed"></textarea>
+  <div><button id="save">Enregistrer</button> <button id="cancel">Annuler</button></div>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const defaults = [
+  { id: 1, question: "Une machine peut simuler pour vous une vie parfaitement heureuse, sans que vous sachiez que c'est une simulation. Vous branchez-vous ?", options: ['Oui, je me branche', 'Non, je reste dans la réalité', 'Je ne sais pas'] },
+  { id: 2, question: 'Et si votre vie actuelle était déjà dans la machine ?', options: ['Je veux en sortir', 'Je reste dedans', 'Ça ne change rien'] },
+  { id: 3, question: 'Pourquoi refuser la machine ? (la raison principale)', options: ['Je veux vivre des choses réelles', 'Je veux agir, pas seulement ressentir', 'Je veux être une certaine personne', 'Je ne refuse pas'] },
+  { id: 4, question: 'Le plaisir est-il le seul bien en soi ?', options: ['Oui', 'Non', 'Ça dépend'] },
+  { id: 5, question: 'Pour un proche très malheureux, le brancheriez-vous (sans son accord) ?', options: ['Oui', 'Non'] },
+];
+const state = JSON.parse(localStorage.hostState || 'null') || { polls: defaults, current: 0, open: true, votes: {}, voters: {} };
+const save = () => localStorage.hostState = JSON.stringify(state);
+const poll = () => state.polls[state.current];
+const view = () => {
+  const p = poll(), v = p ? state.votes[p.id] || {} : {};
+  return { poll: p || null, open: state.open, counts: p ? p.options.map((_, i) => v[i] || 0) : [] };
+};
+
+// Identifiant stable pour que le QR code reste valable après rechargement
+const hostId = localStorage.hostId ||= 'diapo-' + Math.random().toString(36).slice(2, 10);
+const voterUrl = new URL('./?h=' + hostId, location.href).href;
+const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
+$('qr').innerHTML = qr.createSvgTag({ scalable: true, margin: 0 });
+$('url').textContent = voterUrl;
+
+const conns = new Set();
+function broadcast() { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); }
+
+function draw() {
+  const s = view();
+  $('toggle').textContent = s.open ? '⏸ Fermer les votes' : '▶ Ouvrir les votes';
+  $('n').textContent = `${state.current + 1}/${state.polls.length} · ${conns.size} connecté(s)`;
+  if (!s.poll) { $('q').textContent = '—'; $('rows').innerHTML = ''; return; }
+  $('q').textContent = s.poll.question;
+  const tot = s.counts.reduce((a, b) => a + b, 0);
+  const rows = $('rows');
+  if (rows.dataset.p != s.poll.id || rows.children.length !== s.poll.options.length) {
+    rows.dataset.p = s.poll.id;
+    rows.innerHTML = s.poll.options.map(() => '<div class="row"><div class="lab"><span></span><span></span></div><div class="bar"><div class="fill"></div></div></div>').join('');
+  }
+  [...rows.children].forEach((r, i) => {
+    const c = s.counts[i], pct = tot ? Math.round(c / tot * 100) : 0;
+    const sp = r.querySelectorAll('span');
+    sp[0].textContent = s.poll.options[i]; sp[1].textContent = `${c} (${pct}%)`;
+    r.querySelector('.fill').style.width = pct + '%';
+  });
+  $('tot').textContent = `${tot} vote${tot > 1 ? 's' : ''}`;
+}
+function update() { save(); draw(); broadcast(); }
+
+function onVote(conn, d) {
+  const p = poll();
+  const err = e => conn.send({ t: 'ack', ok: false, error: e, pollId: d.pollId });
+  if (!p || p.id !== d.pollId || !state.open || !d.clientId || !(d.option >= 0 && d.option < p.options.length)) return err('refused');
+  const vs = state.voters[p.id] ||= {};
+  if (d.clientId in vs) return err('dup');
+  vs[d.clientId] = d.option;
+  (state.votes[p.id] ||= {})[d.option] = ((state.votes[p.id] || {})[d.option] || 0) + 1;
+  conn.send({ t: 'ack', ok: true, option: d.option, pollId: p.id });
+  update();
+}
+
+function startPeer() {
+  const peer = new Peer(hostId);
+  peer.on('connection', conn => {
+    conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
+    conn.on('data', d => d.t === 'vote' && onVote(conn, d));
+    conn.on('close', () => { conns.delete(conn); draw(); });
+  });
+  peer.on('disconnected', () => peer.reconnect());
+  peer.on('error', e => { if (e.type === 'unavailable-id') { document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; } });
+}
+
+const go = i => { state.current = Math.max(0, Math.min(state.polls.length - 1, i)); update(); };
+$('prev').onclick = () => go(state.current - 1); $('next').onclick = () => go(state.current + 1);
+$('toggle').onclick = () => { state.open = !state.open; update(); };
+$('reset').onclick = () => { const p = poll(); if (p && confirm('Effacer les votes de cette question ?')) { delete state.votes[p.id]; delete state.voters[p.id]; update(); } };
+function openEditor() { $('ed').value = state.polls.map(p => [p.question, ...p.options].join('\n')).join('\n\n'); $('editor').style.display = 'flex'; }
+$('edit').onclick = openEditor; $('cancel').onclick = () => $('editor').style.display = 'none';
+$('save').onclick = () => {
+  const polls = $('ed').value.split(/\n\s*\n/).map(b => b.trim().split('\n').map(l => l.trim()).filter(Boolean)).filter(l => l.length >= 3)
+    .map((l, i) => ({ id: Date.now() + i, question: l[0], options: l.slice(1) }));
+  if (polls.length) {
+    state.polls = polls; state.current = 0; state.votes = {}; state.voters = {};
+    update(); $('editor').style.display = 'none';
+  }
+};
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') go(state.current + 1);
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(state.current - 1);
+  else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
+  else if (e.key.toLowerCase() === 'e') openEditor();
+});
+
+draw(); startPeer();
+</script></body></html>

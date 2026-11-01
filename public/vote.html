@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vote</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#fff;padding:20px;min-height:100vh;box-sizing:border-box}
+h1{font-size:1.4rem;margin:0 0 20px}
+button{display:block;width:100%;padding:18px;margin:10px 0;font-size:1.1rem;border:0;border-radius:12px;background:#3b82f6;color:#fff}
+button:active{background:#2563eb}button.sel{background:#22c55e}button:disabled{opacity:.6}
+.msg{margin-top:16px;color:#94a3b8;text-align:center}
+</style></head><body>
+<div id="app"><p class="msg">Connexion…</p></div>
+<script>
+const id = localStorage.cid ||= crypto.randomUUID?.() || String(Math.random()).slice(2);
+const app = document.getElementById('app');
+let s, msg = '';
+const voted = () => JSON.parse(localStorage.voted || '{}');
+async function vote(i){
+  const r = await fetch('/api/vote',{method:'POST',body:JSON.stringify({pollId:s.poll.id,option:i,clientId:id})});
+  const v = voted();
+  if (r.ok || r.status===409){ v[s.poll.id]=r.ok?i:(v[s.poll.id] ?? -1); localStorage.voted=JSON.stringify(v); msg = r.ok?'Merci, vote enregistré !':'Vous avez déjà voté.'; }
+  else msg='Vote impossible.';
+  render();
+}
+function render(){
+  if(!s||!s.poll){app.innerHTML='<p class="msg">Aucune question pour le moment.</p>';return}
+  const v = voted()[s.poll.id], has = v !== undefined;
+  app.innerHTML = `<h1></h1>` + s.poll.options.map((o,i)=>`<button data-i="${i}" class="${v===i?'sel':''}" ${has||!s.open?'disabled':''}></button>`).join('')
+    + `<p class="msg">${has?(msg||'Vote enregistré.'):s.open?'Touchez votre choix':'Les votes sont fermés.'}</p>`;
+  app.querySelector('h1').textContent = s.poll.question;
+  app.querySelectorAll('button').forEach((b,i)=>{b.textContent=s.poll.options[i];b.onclick=()=>vote(i)});
+}
+let lastPoll;
+const es = new EventSource('/events');
+es.onmessage = e => { s = JSON.parse(e.data); if(s.poll?.id!==lastPoll){msg='';lastPoll=s.poll?.id} render(); };
+</script></body></html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contrôle</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:800px;margin:20px auto;padding:0 16px}
+button{padding:8px 14px;margin:2px;font-size:1rem;cursor:pointer}
+.poll{padding:10px;border:1px solid #ccc;border-radius:8px;margin:6px 0;cursor:pointer}.poll.cur{background:#dbeafe;border-color:#3b82f6}
+textarea{width:100%;height:220px;font-family:monospace}
+</style></head><body>
+<h1>Contrôle du vote</h1>
+<p>Écran à projeter : <a href="/screen" target="_blank">/screen</a> — Raccourcis : ← → changer de diapo</p>
+<div><button id="prev">◀ Précédent</button><button id="next">Suivant ▶</button>
+<button id="toggle"></button><button id="reset">Remettre à zéro</button></div>
+<div id="list"></div>
+<h2>Éditer les questions</h2>
+<p>Une question par bloc, séparés par une ligne vide. 1ère ligne = question, lignes suivantes = options.</p>
+<textarea id="ed"></textarea><br><button id="save">Enregistrer</button>
+<script>
+const key = localStorage.adminKey || (localStorage.adminKey = prompt('Clé admin ?', 'admin'));
+const api = (p,b) => fetch('/api/admin/'+p,{method:b?'POST':'GET',headers:{'x-admin-key':key},body:b&&JSON.stringify(b)}).then(r=>r.json());
+let s;
+async function load(){
+  s = await api('state');
+  if(s.error){localStorage.removeItem('adminKey');document.body.textContent=s.error;return}
+  list.innerHTML = s.polls.map((p,i)=>`<div class="poll ${i==s.index?'cur':''}" data-i="${i}">${i+1}. ${p.question.replace(/</g,'&lt;')}</div>`).join('');
+  list.querySelectorAll('.poll').forEach(d=>d.onclick=()=>api('goto',{index:+d.dataset.i}));
+  toggle.textContent = s.open ? '⏸ Fermer les votes' : '▶ Ouvrir les votes';
+  if(!ed.dataset.init){ed.value=s.polls.map(p=>[p.question,...p.options].join('\n')).join('\n\n');ed.dataset.init=1}
+}
+prev.onclick=()=>api('goto',{index:s.index-1}); next.onclick=()=>api('goto',{index:s.index+1});
+toggle.onclick=()=>api('open',{open:!s.open}); reset.onclick=()=>confirm('Effacer les votes de cette question ?')&&api('reset',{});
+save.onclick=async()=>{
+  const polls = ed.value.split(/\n\s*\n/).map(b=>b.trim().split('\n').map(l=>l.trim()).filter(Boolean)).filter(l=>l.length>=3)
+    .map(l=>({question:l[0],options:l.slice(1)}));
+  await api('polls',{polls}); alert(polls.length+' question(s) enregistrée(s)');
+};
+addEventListener('keydown',e=>{if(e.target===ed)return;if(e.key=='ArrowRight')next.click();if(e.key=='ArrowLeft')prev.click()});
+new EventSource('/events').onmessage=load;
+</script></body></html>
