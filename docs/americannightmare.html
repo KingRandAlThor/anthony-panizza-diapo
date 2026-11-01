@@ -44,8 +44,34 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .tot{font-size:1.6vw;color:var(--mut)}
 #bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.2;transition:opacity .2s;z-index:5}
 #bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar .info{color:#94a3b8;font-size:.85rem;margin-left:auto}
+body{--o1:#1e3a8a;--o2:#b45309}
+body.dusk{--o1:#6d28d9;--o2:#b91c1c}body.red{--o1:#991b1b;--o2:#7c2d12}
+.orb{position:fixed;border-radius:50%;filter:blur(9vw);opacity:.45;pointer-events:none;transition:background 1.6s;z-index:-1}
+#o1{width:45vw;height:45vw;left:-10vw;top:-10vw;background:var(--o1);animation:drift1 18s ease-in-out infinite alternate}
+#o2{width:40vw;height:40vw;right:-8vw;bottom:-10vw;background:var(--o2);animation:drift2 22s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(30vw,25vh) scale(1.25)}}@keyframes drift2{to{transform:translate(-28vw,-20vh) scale(1.3)}}
+body.red .slide,body.dusk .slide{--hl:#fca5a5}
+body.red::after{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 12vw #7f1d1d;animation:beat 3s ease-in-out infinite}
+@keyframes beat{50%{box-shadow:inset 0 0 18vw #b91c1c}}
+.ch{display:inline-block;-webkit-text-fill-color:#fee2e2;opacity:0;transform:translateY(5vh) rotate(6deg);animation:ch .7s cubic-bezier(.2,1.3,.4,1) forwards;animation-delay:calc(var(--i)*60ms + .2s)}
+@keyframes ch{to{opacity:1;transform:none}}
+.slide.title .sub{opacity:0;animation:in 1s ease 1.2s forwards}
+.slide.title .kicker{animation:in 1s ease}
+.slide.big{align-items:center;text-align:center;animation:zoom .7s ease}.slide.content{animation:in .6s ease}
+@keyframes zoom{from{opacity:0;transform:scale(1.06);filter:blur(1vw)}to{opacity:1;transform:none;filter:none}}
+.big{display:flex;flex-direction:column;gap:3.2vh;align-items:center;max-width:82vw}
+.bl{font-size:3.2vw;line-height:1.25;opacity:0;transform:translateY(3vh) scale(.96);filter:blur(.8vw);transition:all .9s cubic-bezier(.2,.8,.2,1)}
+.bl.show{opacity:1;transform:none;filter:none}.bl.show.old{opacity:.45}
+.bl b{color:var(--hl)}.bl.sm{font-size:2.3vw;color:#e2e8f0}.bl.em{font-size:4vw;font-weight:800;background:linear-gradient(90deg,#fff,var(--hl));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bl.em b{-webkit-text-fill-color:var(--hl)}.bl.show.em.old{opacity:1}
+.bl .vid{width:46vw}
+.stat.show .v{animation:glow 2.4s ease-in-out infinite alternate}@keyframes glow{to{filter:drop-shadow(0 0 1vw #facc15)}}
+.stat .v.long{font-size:2.2vw!important}
+li.show::before{animation:ping 1.2s ease-out}@keyframes ping{0%{box-shadow:0 0 0 0 #ef4444aa}100%{box-shadow:0 0 0 1.2vw transparent}}
+.fig img,.vid{animation:in .8s ease}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ch,.slide.title .sub{opacity:1!important;transform:none!important}}
 </style></head><body>
-<div id="prog"></div>
+<div class="orb" id="o1"></div><div class="orb" id="o2"></div><div id="prog"></div>
 <section id="slide" class="slide"></section>
 <div id="bar">
   <button id="prev">◀</button><button id="next">▶</button>
@@ -58,25 +84,54 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 const $ = id => document.getElementById(id);
 
 const slides = [
-  { kind: 'title', title: 'Le prix de la paix', sub: 'Qu\'est-ce qui garantit notre bonheur ?' },
-  { kind: 'cloud', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui garantit le bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
-  { kind: 'content', kicker: 'Un nouveau contrat social', title: 'L\'utopie : une nation sans crise',
-    bullets: ["Les dirigeants ont fait une promesse… et <b>ils l'ont tenue</b>", "Le chômage a été <b>éradiqué</b>, la criminalité a <b>quasiment disparu</b>", "<b>364 jours par an</b> : paix sociale et prospérité totales", "Le besoin de <b>sécurité</b> de la pyramide de Maslow est comblé pour tous"],
-    stats: [{ v: '1 %', l: 'de chômage' }, { v: '1 %', l: 'de criminalité' }, { v: '364', l: 'jours de paix par an' }],
+  { kind: 'title', mood: 'calm', kicker: 'Exposé', title: 'Le prix de la paix', sub: 'Qu\'est-ce qui garantit notre bonheur ?' },
+  { kind: 'big', mood: 'calm', kicker: 'Une question vieille comme la philosophie', lines: [
+    'Qu\'est-ce qu\'une vie heureuse ?',
+    { t: 'Aristote : l\'<b>eudaimonia</b>, bien vivre en épanouissant ce qui fait de nous des humains', cls: 'sm' },
+    { t: 'Épicure : l\'<b>ataraxie</b>, la tranquillité de l\'âme, sans trouble ni crainte', cls: 'sm' },
+    { t: 'Mais peut-on être heureux… <b>sans se sentir en sécurité</b> ?', cls: 'em' } ] },
+  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui garantit le bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
+  { kind: 'content', mood: 'calm', kicker: 'Psychologie', title: 'Avant d\'être heureux, il faut tenir debout',
+    bullets: ["Maslow (1943) : nos besoins forment une <b>pyramide</b>", "À la base : manger, dormir… puis la <b>sécurité</b> : corps, emploi, ressources, stabilité", "Sans ces bases, difficile de viser l'<b>appartenance</b>, l'<b>estime</b> ou l'<b>accomplissement</b>", "La sécurité est-elle alors <b>une condition</b> du bonheur… ou <b>le bonheur lui-même</b> ?"],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)' },
-  { kind: 'content', cls: 'red', kicker: 'Le twist', title: 'Et le 365ᵉ jour ?',
-    bullets: ["Cette société, c'est celle du film <b>American Nightmare</b> (<b>The Purge</b>, 2013)", "Le prix de la paix : <b>la Purge</b>", "Une nuit par an, <b>12 heures</b>, toute criminalité, <b>meurtre compris</b>, devient légale", "Vendu comme un <b>défouloir national</b>, un sacrifice civique consenti", "L'utopie n'existe que parce que <b>la paix est achetée par le sang</b>"],
-    video: 'K0LLaybEuzA' },
-  { kind: 'content', cls: 'red', kicker: 'La dérive sécuritaire', title: 'La sécurité : un produit de luxe',
-    bullets: ["La Purge révèle une <b>fracture sociale monstrueuse</b>", "Les <b>riches</b> se barricadent derrière des systèmes de sécurité de pointe : nuit tranquille", "Les <b>pauvres</b> sont d'une vulnérabilité totale", "Un <b>darwinisme social</b> impitoyable : le bonheur des uns repose sur le massacre des autres"],
-    stat: { v: 'Sécurité ≠ droit', l: 'elle devient un privilège réservé à ceux qui peuvent la payer' } },
-  { kind: 'content', cls: 'red', kicker: 'L\'effondrement du bonheur', title: 'Détruire l\'humain de l\'intérieur',
-    bullets: ["<b>La paranoïa</b> : comment être heureux quand son voisin peut nous assassiner légalement ?", "<b>La perte d'empathie</b> : on s'anesthésie et on ferme les yeux sur la détresse des autres", "<b>L'isolement</b> : à force de se blinder derrière des portes d'acier, on se déshumanise", "On garantit sa survie, mais <b>on ne vit plus</b>"],
-    stat: { v: 'Survivre ≠ vivre', l: 'la sécurité absolue a un coût psychologique' } },
-  { kind: 'cloud', id: 'w1', max: 0, readonly: true, question: 'Revenons à vos mots du début…', hint: '' },
-  { kind: 'content', kicker: 'Conclusion', title: 'La survie n\'est pas le bonheur',
-    bullets: ["American Nightmare nous prouve une chose : <b>la survie n'est pas le bonheur</b>", "Vouloir une sécurité absolue au point de sacrifier son empathie ne mène pas à la liberté, mais à <b>une prison dorée, paranoïaque et angoissante</b>", "Le vrai bonheur nécessite sans doute ce que cette société a détruit : <b>le lien humain, la confiance et l'empathie</b>"] },
-  { kind: 'end', title: 'Merci !', sub: 'Des questions ?' },
+  { kind: 'content', mood: 'calm', kicker: 'Philosophie politique', title: 'Le contrat social : échanger de la liberté contre de la sécurité',
+    bullets: ["Hobbes (<i>Léviathan</i>, 1651) : sans pouvoir commun, c'est la <b>guerre de tous contre tous</b>", "Pour y échapper, on <b>cède une part de sa liberté</b> à un pouvoir qui nous protège", "Locke, Rousseau : ce pouvoir doit <b>protéger</b> nos droits, pas les <b>sacrifier</b>", "Toute la question : <b>combien</b> de liberté accepte-t-on de céder ?"],
+    stat: { v: '« guerre de tous contre tous »', l: 'Hobbes, Léviathan (1651)' } },
+  { kind: 'content', mood: 'calm', kicker: 'Le dilemme', title: 'Liberté ou sécurité ?',
+    bullets: ["Plus de <b>sécurité</b> = plus de règles, de contrôle, de surveillance", "Plus de <b>liberté</b> = plus d'incertitude et de risques", "Une phrase attribuée à Benjamin Franklin : celui qui sacrifie une liberté essentielle pour un peu de sécurité temporaire <b>ne mérite ni l'une ni l'autre</b>", "Alors, jusqu'où irait <b>votre</b> contrat ?"],
+    stat: { v: 'Jusqu\'où ?', l: 'À quel prix accepteriez-vous d\'être en sécurité ?' } },
+  { kind: 'big', mood: 'calm', kicker: 'Une expérience de pensée', lines: [
+    'Imaginons une société qui aurait trouvé la réponse.',
+    { t: 'Ses dirigeants ont fait <b>une promesse</b>…', cls: 'sm' },
+    { t: '…et ils l\'ont <b>tenue</b>.', cls: 'em' } ] },
+  { kind: 'content', mood: 'calm', kicker: 'L\'utopie', title: 'Une nation sans crise',
+    bullets: ["Le chômage a été <b>éradiqué</b>", "La criminalité a <b>quasiment disparu</b>", "Paix sociale et prospérité <b>pendant 364 jours par an</b>", "Le besoin de <b>sécurité</b> est comblé pour tous : le cadre parfait pour s'épanouir ?"],
+    stats: [{ v: '1 %', l: 'de chômage' }, { v: '1 %', l: 'de criminalité' }, { v: '364', l: 'jours de paix par an' }] },
+  { kind: 'big', mood: 'dusk', kicker: 'Un détail…', lines: [
+    '364 jours de paix.',
+    '364 jours de prospérité.',
+    { t: 'Un contrat accepté par tous.', cls: 'sm' },
+    { t: 'Mais que se passe-t-il <b>le 365ᵉ jour</b> ?', cls: 'em' } ] },
+  { kind: 'content', mood: 'dusk', kicker: 'Le contrat', title: 'Le prix à payer',
+    bullets: ["Une nuit par an, pendant <b>12 heures</b>", "Toute criminalité, <b>meurtre compris</b>, devient légale", "Les secours sont suspendus", "Présenté comme un <b>défouloir national</b>, un <b>sacrifice civique consenti</b>", "Une paix <b>achetée</b>… mais à quel prix ?"],
+    stat: { v: '12 h', l: 'sans loi, une fois par an' } },
+  { kind: 'big', mood: 'red', kicker: 'Cette société n\'existe pas… heureusement', lines: [
+    { t: 'Elle vient d\'un film : <b>American Nightmare</b>', cls: 'em' },
+    { t: '<i>The Purge</i>, 2013', cls: 'sm' },
+    { t: 'Une fiction peut servir d\'<b>expérience de pensée</b> : que révèle-t-elle de la sécurité ?', cls: 'sm' } ], video: 'K0LLaybEuzA' },
+  { kind: 'content', mood: 'red', kicker: 'Première fracture', title: 'La sécurité devient un produit de luxe',
+    bullets: ["Les <b>riches</b> se barricadent derrière des systèmes de sécurité de pointe", "Les <b>pauvres</b> sont d'une vulnérabilité totale", "Un <b>darwinisme social</b> : le bonheur des uns repose sur le malheur des autres", "Rawls (1971) : choisiriez-vous cette société <b>sans savoir</b> si vous naîtrez riche ou pauvre ? C'est le <b>voile d'ignorance</b>"],
+    stat: { v: 'Droit ou privilège ?', l: 'une sécurité réservée à ceux qui peuvent la payer n\'est plus une sécurité commune' } },
+  { kind: 'content', mood: 'red', kicker: 'Seconde fracture', title: 'Ce que la sécurité absolue détruit',
+    bullets: ["<b>La paranoïa</b> : comment être heureux quand son voisin pourrait nous tuer légalement ?", "<b>La perte d'empathie</b> : on s'anesthésie et on ferme les yeux sur la détresse des autres", "<b>L'isolement</b> : à force de se blinder, on se coupe des autres", "Aristote : l'être humain est un <b>animal politique</b>, il ne s'épanouit qu'avec les autres"],
+    stat: { v: 'Survivre ≠ vivre', l: 'on garantit sa survie, mais on ne vit plus' } },
+  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, readonly: true, question: 'Revenons à vos mots du début…', hint: '' },
+  { kind: 'big', mood: 'calm', kicker: 'Conclusion', lines: [
+    { t: 'La <b>sécurité</b> est une condition du bonheur.', cls: 'sm' },
+    { t: 'Mais elle n\'en est <b>pas la garantie</b>.', cls: 'sm' },
+    { t: 'Une sécurité absolue, au prix de notre empathie, mène à <b>une prison dorée, paranoïaque et angoissante</b>.', cls: 'sm' },
+    { t: 'Le vrai bonheur a besoin de ce que cette société a détruit : <b>le lien humain, la confiance, l\'empathie</b>.', cls: 'em' } ] },
+  { kind: 'end', mood: 'calm', title: 'Merci !', sub: 'Des questions ?' },
 ];
 
 const state = Object.assign({ cur: 0, step: 0, open: true, words: {}, wvoters: {}, ver: {} }, JSON.parse(localStorage.deck2 || 'null') || {});
@@ -84,7 +139,7 @@ state.cur = Math.min(state.cur, slides.length - 1);
 const save = () => localStorage.deck2 = JSON.stringify(state);
 const S = () => slides[state.cur];
 const statsOf = s => s.stats || (s.stat ? [s.stat] : []);
-const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + statsOf(s).length : 0;
+const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + statsOf(s).length : s.kind === 'big' ? s.lines.length + (s.video ? 1 : 0) : 0;
 const wid = s => s.id + '.' + (state.ver[s.id] || 0);
 
 const view = () => {
@@ -104,9 +159,12 @@ const broadcast = () => { const m = { t: 'state', state: view() }; conns.forEach
 function render() {
   const s = S(), el = $('slide');
   el.className = 'slide ' + s.kind;
+  document.body.className = s.mood || '';
   const kick = s.kicker ? `<div class="kicker">${s.kicker}</div>` : '';
+  const lines = (s.lines || []).map(l => typeof l === 'string' ? { t: l } : l);
   if (s.kind === 'qr') el.innerHTML = `<h1>🔒 Rejoignez la discussion</h1><div class="sub">Scannez le QR code pour participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
-  else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${s.title}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
+  else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${[...s.title].map((c, i) => `<span class="ch" style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('')}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
+  else if (s.kind === 'big') el.innerHTML = `${kick}<div class="big">${lines.map(l => `<div class="bl ${l.cls || ''}">${l.t}</div>`).join('')}${s.video ? `<div class="bl"><iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe></div>` : ''}</div>`;
   else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
   else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
     + ((statsOf(s).length || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${statsOf(s).length ? `<div class="srow">${statsOf(s).map(x => `<div class="stat"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
@@ -151,6 +209,14 @@ function drawCloud(s) {
   $('tot').textContent = `${total} mot${total > 1 ? 's' : ''} envoyé${total > 1 ? 's' : ''}` + (!s.readonly && !state.open ? ' · envois fermés' : '');
 }
 
+function countUp(v) {
+  v.dataset.t ||= v.textContent;
+  const m = v.dataset.t.match(/^(\d+)(.*)$/);
+  if (!m) return;
+  const end = +m[1], t0 = performance.now();
+  const f = now => { const k = Math.min(1, (now - t0) / 1400); v.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))) + m[2]; if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
 function draw() {
   const s = S();
   $('toggle').textContent = state.open ? '⏸ Fermer les envois' : '▶ Ouvrir les envois';
@@ -159,7 +225,17 @@ function draw() {
   if (s.kind === 'content') {
     const n = s.bullets?.length || 0;
     document.querySelectorAll('li').forEach((li, i) => li.classList.toggle('show', i < state.step));
-    document.querySelectorAll('.stat').forEach((el, i) => el.classList.toggle('show', state.step > n + i));
+    document.querySelectorAll('.stat').forEach((el, i) => {
+      const on = state.step > n + i, v = el.querySelector('.v');
+      el.classList.toggle('show', on);
+      if (v.textContent.length > 8) v.classList.add('long');
+      if (on && !el.dataset.done) { el.dataset.done = 1; countUp(v); }
+      if (!on) { delete el.dataset.done; if (v.dataset.t) v.textContent = v.dataset.t; }
+    });
+  }
+  if (s.kind === 'big') {
+    const bl = [...document.querySelectorAll('.bl')];
+    bl.forEach((el, i) => { el.classList.toggle('show', i < state.step); el.classList.toggle('old', i < state.step - 1); });
   }
   if (s.kind === 'cloud') drawCloud(s);
 }
@@ -177,10 +253,9 @@ const prev = () => {
 function onWord(conn, d) {
   const s = S(), err = (e, count) => conn.send({ t: 'wack', ok: false, error: e, pollId: d.pollId, count });
   if (s.kind !== 'cloud' || s.readonly || wid(s) !== d.pollId || !state.open || !d.clientId) return err('refused');
-  const word = String(d.word || '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 24);
+  const word = String(d.word || '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 40);
   if (!word) return err('refused');
   const vs = state.wvoters[wid(s)] ||= {}, used = vs[d.clientId] || 0;
-  if (s.max && used >= s.max) return err('max', used);
   vs[d.clientId] = used + 1;
   const w = state.words[s.id] ||= {};
   w[word] = (w[word] || 0) + 1;
