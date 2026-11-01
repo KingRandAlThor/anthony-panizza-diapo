@@ -34,10 +34,11 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .pollside .qrbox{height:auto;width:100%;padding:.7vw;border-radius:1.2vw}
 .slide.cloud{justify-content:flex-start;padding-top:5vh}
 .slide.cloud h2{font-size:2.8vw;margin-bottom:1vh}
-#cloud{flex:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:1vh 2vw;overflow:hidden;padding:2vh 0}
-#cloud span{font-weight:800;line-height:1.05;cursor:pointer;display:inline-block;animation:pop .7s cubic-bezier(.2,1.4,.4,1),float var(--d,5s) ease-in-out var(--dl,0s) infinite alternate;transition:font-size .6s,filter .4s,transform .4s;text-shadow:0 0 .8vw currentColor}
-#cloud span.fresh{animation:pop .7s cubic-bezier(.2,1.4,.4,1),flash 1.4s ease-out,float var(--d,5s) ease-in-out var(--dl,0s) infinite alternate}
-#cloud span.spot{transform:scale(1.35) rotate(-3deg);filter:brightness(1.5) drop-shadow(0 0 1.2vw currentColor);z-index:2;animation:none}
+#cloud{flex:1;position:relative;overflow:hidden;min-height:40vh}
+#cloud span{position:absolute;left:0;top:0;font-weight:800;line-height:1;white-space:nowrap;cursor:pointer;will-change:transform;text-shadow:0 0 .8vw currentColor;transition:font-size .6s,filter .4s}
+#cloud span i{display:inline-block;font-style:normal;animation:pop .8s cubic-bezier(.2,1.4,.4,1) both}
+#cloud span.fresh i{animation:pop .8s cubic-bezier(.2,1.4,.4,1) both,flash 1.6s ease-out}
+#cloud span.spot{filter:brightness(1.6) drop-shadow(0 0 1.2vw currentColor);z-index:2}
 @keyframes float{0%{transform:translate(0,0) rotate(var(--r,-2deg))}100%{transform:translate(var(--x,.6vw),var(--y,-1.2vh)) rotate(calc(var(--r,-2deg) * -1))}}
 @keyframes flash{0%{filter:brightness(3) drop-shadow(0 0 2vw #fff)}100%{filter:none}}
 @keyframes pop{from{opacity:0;transform:scale(.2) rotate(-8deg)}to{opacity:1;transform:none}}
@@ -178,35 +179,53 @@ function render() {
 
 const colors = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9', '#f472b6'];
 const hash = w => [...w].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
-let firstDraw = true;
-setInterval(() => {
-  const spans = [...document.querySelectorAll('#cloud span')];
-  spans.forEach(x => x.classList.remove('spot'));
-  if (spans.length) spans[Math.floor(Math.random() * spans.length)].classList.add('spot');
-}, 2200);
+const cloudItems = new Map();
+let raf = 0, spotTimer = 0;
+function loop() {
+  const c = $('cloud');
+  if (!c) { raf = 0; return; }
+  const W = c.clientWidth, H = c.clientHeight;
+  cloudItems.forEach((it, el) => {
+    if (!el.isConnected) { cloudItems.delete(el); return; }
+    const w = el.offsetWidth, h = el.offsetHeight;
+    it.x += it.vx; it.y += it.vy;
+    if (it.x < 0) { it.x = 0; it.vx = Math.abs(it.vx); } else if (it.x > W - w) { it.x = Math.max(0, W - w); it.vx = -Math.abs(it.vx); }
+    if (it.y < 0) { it.y = 0; it.vy = Math.abs(it.vy); } else if (it.y > H - h) { it.y = Math.max(0, H - h); it.vy = -Math.abs(it.vy); }
+    it.a += it.va;
+    el.style.transform = `translate(${it.x}px,${it.y}px) rotate(${Math.sin(it.a) * 6}deg)`;
+  });
+  raf = requestAnimationFrame(loop);
+}
 function drawCloud(s) {
-  firstDraw = !cloud.children.length;
-  const id = s.id + '.' + (state.ver[s.id] || 0), w = state.words[s.id] || {}, cloud = $('cloud');
+  const cloud = $('cloud'), w = state.words[s.id] || {};
+  const first = !cloud.children.length;
   const entries = Object.entries(w), max = Math.max(1, ...entries.map(e => e[1])), total = entries.reduce((a, e) => a + e[1], 0);
-  const base = entries.length > 60 ? 1.5 : entries.length > 35 ? 1.9 : entries.length > 20 ? 2.4 : entries.length > 10 ? 3.1 : 3.8;
+  const base = entries.length > 80 ? 1.2 : entries.length > 50 ? 1.5 : entries.length > 30 ? 1.9 : entries.length > 15 ? 2.5 : entries.length > 6 ? 3.2 : 4;
   const present = new Set(entries.map(e => e[0]));
-  [...cloud.children].forEach(c => { if (!present.has(c.dataset.w)) c.remove(); });
+  [...cloud.children].forEach(c => { if (!present.has(c.dataset.w)) { cloudItems.delete(c); c.remove(); } });
+  const W = cloud.clientWidth || 800, H = cloud.clientHeight || 400;
   entries.forEach(([word, n]) => {
     let sp = [...cloud.children].find(c => c.dataset.w === word);
     if (!sp) {
-      sp = document.createElement('span'); sp.dataset.w = word; sp.textContent = word;
+      sp = document.createElement('span'); sp.dataset.w = word;
+      const i = document.createElement('i'); i.textContent = word; sp.appendChild(i);
       sp.style.color = colors[hash(word) % colors.length];
       sp.title = 'Cliquer pour retirer ce mot';
-      const h = hash(word);
-      sp.style.setProperty('--d', (3 + h % 40 / 10) + 's'); sp.style.setProperty('--dl', -(h % 30 / 10) + 's');
-      sp.style.setProperty('--x', ((h % 11) - 5) / 5 + 'vw'); sp.style.setProperty('--y', ((h % 7) - 3) / 2 + 'vh'); sp.style.setProperty('--r', ((h % 9) - 4) / 2 + 'deg');
-      if (!firstDraw) { sp.classList.add('fresh'); setTimeout(() => sp.classList.remove('fresh'), 1500); }
+      const sx = (Math.random() * 0.5 + 0.25) * (Math.random() < .5 ? -1 : 1), sy = (Math.random() * 0.4 + 0.15) * (Math.random() < .5 ? -1 : 1);
+      cloudItems.set(sp, { x: Math.random() * W * .8, y: Math.random() * H * .8, vx: sx, vy: sy, a: Math.random() * 6, va: .01 + Math.random() * .02 });
+      if (!first) { sp.classList.add('fresh'); setTimeout(() => sp.classList.remove('fresh'), 1700); }
       sp.onclick = () => { delete state.words[s.id][word]; update(); };
       cloud.appendChild(sp);
     }
-    sp.style.fontSize = (base + (n / max) * base * 1.6 * (max > 1 ? 1 : 0)) + 'vw';
+    sp.style.fontSize = (base + (n / max) * base * 1.2 * (max > 1 ? 1 : 0)) + 'vw';
   });
   $('tot').textContent = `${total} mot${total > 1 ? 's' : ''} envoyé${total > 1 ? 's' : ''}` + (!s.readonly && !state.open ? ' · envois fermés' : '');
+  if (!raf) raf = requestAnimationFrame(loop);
+  if (!spotTimer) spotTimer = setInterval(() => {
+    const sp = [...document.querySelectorAll('#cloud span')];
+    sp.forEach(x => x.classList.remove('spot'));
+    if (sp.length) sp[Math.floor(Math.random() * sp.length)].classList.add('spot');
+  }, 2200);
 }
 
 function countUp(v) {
