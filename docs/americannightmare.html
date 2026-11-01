@@ -20,7 +20,7 @@ li::before{content:'';position:absolute;left:0;top:.6em;width:.9vw;height:.9vw;b
 li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .rcol{width:32vw;display:flex;flex-direction:column;gap:2vh;align-items:stretch}.vid{width:100%;aspect-ratio:16/9;border:0;border-radius:1vw}
 .fig{margin:0;text-align:center}.fig img{width:100%;max-height:42vh;object-fit:contain;border-radius:1vw;background:#ffffff0d}.fig figcaption{font-size:1.1vw;color:var(--mut);margin-top:.8vh}
-.rcol .stat{width:100%;padding:2.5vh 1.5vw}.rcol .stat .v{font-size:3.4vw}.stat{width:30vw;background:var(--card);border:1px solid #ffffff18;border-radius:2vw;padding:4vh 2vw;text-align:center;opacity:0;transform:scale(.92);transition:.6s}
+.srow{display:flex;gap:1vw}.rcol .stat{width:auto;flex:1;padding:2.5vh 1vw}.rcol .stat .v{font-size:3.2vw}.rcol .stat .l{font-size:1.3vw}.slide.red .kicker{color:#f87171}.fig img{max-height:30vh}.stat{width:30vw;background:var(--card);border:1px solid #ffffff18;border-radius:2vw;padding:4vh 2vw;text-align:center;opacity:0;transform:scale(.92);transition:.6s}
 .stat.show{opacity:1;transform:none}
 .stat .v{font-size:4.6vw;font-weight:800;background:linear-gradient(90deg,var(--hl),#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stat .l{font-size:1.5vw;color:var(--mut);margin-top:1.5vh}
@@ -30,7 +30,7 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 .qrbox{background:#fff;border-radius:2vw;padding:1.2vw;height:52vh;aspect-ratio:1;margin:2vh 0}.qrbox svg{width:100%;height:100%;display:block}
 .slide.qr h1{font-size:4.4vw;margin-bottom:1vh}.url{font-size:1.4vw;color:var(--mut);word-break:break-all}
 .cnt{font-size:2.2vw;color:var(--b);margin-top:1vh;font-weight:600}
-.pollwrap{display:flex;gap:4vw;flex:1;min-height:0}.pollmain{flex:1;display:flex;flex-direction:column;min-height:0}.pollside{width:17vw;text-align:center;font-size:1.3vw;color:var(--mut)}
+.pollwrap{display:flex;gap:4vw;flex:1;min-height:0}.pollmain{flex:1;display:flex;flex-direction:column;min-height:0}.pollside{width:24vw;text-align:center;font-size:1.3vw;color:var(--mut)}
 .pollside .qrbox{height:auto;width:100%;padding:.7vw;border-radius:1.2vw}
 .slide.cloud{justify-content:flex-start;padding-top:5vh}
 .slide.cloud h2{font-size:2.8vw;margin-bottom:1vh}
@@ -58,34 +58,24 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 const $ = id => document.getElementById(id);
 
 const slides = [
-  { kind: 'qr' },
-  { kind: 'title', kicker: '', title: 'Qu\'est-ce qui garantit notre bonheur ?', sub: '', author: '' },
-  { kind: 'cloud', id: 'w1', max: 0, question: 'Selon vous, quelle est la chose la plus importante pour garantir votre bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
-  { kind: 'content', kicker: 'Le film', title: 'The Purge (2013)',
-    video: 'K0LLaybEuzA',
-    bullets: ["Réalisé par <b>James DeMonaco</b>, dans une Amérique du futur", "Une nuit par an, <b>tous les crimes sont légaux</b> : la « Purge »", "Le reste de l'année, le gouvernement vante <b>un chômage et une criminalité quasi nuls</b>", "Une société « heureuse »… <b>au prix d'une nuit sans loi</b>"],
-    stat: { v: '12 h', l: 'sans police, sans secours, sans loi' } },
-  { kind: 'content', kicker: 'Ce que montre le film', title: 'La sécurité : un privilège',
-    bullets: ["Les <b>riches</b> blindent leur maison et s'achètent la sécurité", "Les <b>pauvres</b> n'ont pas les moyens de se protéger : ils sont les premières cibles", "Sans règles communes, <b>personne n'est vraiment en sécurité</b>", "Même derrière des portes blindées, le bonheur laisse place à <b>la peur</b>"] },
-  { kind: 'content', kicker: 'Dans la vraie vie', title: 'Quand l\'ordre s\'effondre : des exemples réels', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Hurricane_Katrina_Flooding.jpg?width=900', cap: 'La Nouvelle-Orléans, Katrina (2005)',
-    bullets: ["<b>Ouragan Katrina (2005, La Nouvelle-Orléans)</b> : pillages et violences dans les jours sans autorité ni secours", "<b>Somalie (depuis 1991)</b> : l'effondrement de l'État laisse place aux milices et à l'insécurité", "<b>Haïti (années 2020)</b> : les gangs contrôlent une grande partie de la capitale, des centaines de milliers de déplacés", "<b>Panne géante de New York (1977)</b> : une nuit sans électricité, pillages et incendies"],
-    src: 'Katrina : photo FEMA / domaine public (Wikimedia Commons)' },
-  { kind: 'content', kicker: 'Dans la fiction', title: 'Toujours le même scénario', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Lord_of_the_Flies_by_LadyBrainBypass.jpg?width=900', cap: 'Lord of the Flies (illustration, domaine public)',
-    bullets: ["<b>Lord of the Flies</b> (Golding, 1954) : des enfants seuls sur une île sombrent dans la violence", "<b>The Walking Dead, Mad Max, The Road</b> : sans lois, la survie remplace tout le reste", "<b>The Purge</b> : même un pays « heureux » est à une nuit de l'anarchie"],
-    stat: { v: '1 constante', l: 'sans sécurité, le bonheur disparaît' } },
-  { kind: 'content', kicker: 'Philosophie politique', title: 'Hobbes : l\'état de nature', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Leviathan_frontispiece.jpg?width=700', cap: 'Frontispice du Léviathan (1651)',
-    bullets: ["Sans autorité commune, c'est la <b>guerre de chacun contre chacun</b>", "La vie y est « <b>solitaire, pauvre, méchante, brutale et brève</b> »", "On accepte donc des lois pour obtenir <b>la sécurité</b>", "La Purge, c'est <b>un retour volontaire à l'état de nature</b>"],
-    stat: { v: '1651', l: 'Thomas Hobbes, Léviathan' } },
-  { kind: 'content', kicker: 'Psychologie', title: 'La pyramide de Maslow', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)',
-    bullets: ["1. Besoins <b>physiologiques</b> (manger, dormir)", "2. <b>Sécurité</b> (être protégé, stabilité)", "3. Appartenance (aimer, être aimé)", "4. Estime  ·  5. Accomplissement de soi", "Les besoins du bas doivent être <b>satisfaits en premier</b>"],
-    stat: { v: '2ᵉ marche', l: 'la sécurité vient juste après les besoins vitaux' }, src: "Source : Abraham Maslow, « A Theory of Human Motivation », 1943" },
-  { kind: 'content', kicker: 'Droit', title: 'La sûreté, un droit fondamental', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Declaration_of_the_Rights_of_Man_and_of_the_Citizen_in_1789.jpg?width=700', cap: 'Déclaration des droits de l\'homme et du citoyen (1789)',
-    bullets: ["Déclaration des droits de l'homme de <b>1789</b>, article 2", "Les droits naturels : <b>liberté, propriété, sûreté</b> et résistance à l'oppression", "La sûreté protège chacun <b>contre l'arbitraire</b> et la violence", "Sans elle, les autres libertés <b>n'existent que sur le papier</b>"] },
-  { kind: 'cloud', id: 'w1', max: 0, readonly: true, question: 'Et vos mots à vous ? La sécurité apparaît-elle ?', hint: 'Regardez ce que la classe a choisi' },
-  { kind: 'content', kicker: 'Nuance', title: 'Sécurité ≠ bonheur à elle seule',
-    bullets: ["La sécurité est <b>une condition</b>, pas une garantie du bonheur", "Une sécurité absolue peut <b>coûter la liberté</b> (surveillance, contrôle)", "Le film le montre aussi : <b>la peur permet de gouverner</b>", "Le défi : <b>trouver l'équilibre</b> entre sécurité et liberté"] },
-  { kind: 'content', kicker: 'Conclusion', title: 'Pas de bonheur sans sécurité',
-    bullets: ["Sans sécurité, on vit dans <b>la peur et l'urgence</b>", "Elle rend possibles <b>nos projets, nos liens, nos libertés</b>", "The Purge nous montre <b>ce qui reste quand elle disparaît</b>", "Le bonheur commence quand <b>on n'a plus peur</b>"] },
+  { kind: 'title', title: 'Le prix de la paix', sub: 'Qu\'est-ce qui garantit notre bonheur ?' },
+  { kind: 'cloud', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui garantit le bonheur ?', hint: 'Envoyez autant de mots que vous voulez !' },
+  { kind: 'content', kicker: 'Un nouveau contrat social', title: 'L\'utopie : une nation sans crise',
+    bullets: ["Les dirigeants ont fait une promesse… et <b>ils l'ont tenue</b>", "Le chômage a été <b>éradiqué</b>, la criminalité a <b>quasiment disparu</b>", "<b>364 jours par an</b> : paix sociale et prospérité totales", "Le besoin de <b>sécurité</b> de la pyramide de Maslow est comblé pour tous"],
+    stats: [{ v: '1 %', l: 'de chômage' }, { v: '1 %', l: 'de criminalité' }, { v: '364', l: 'jours de paix par an' }],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)' },
+  { kind: 'content', cls: 'red', kicker: 'Le twist', title: 'Et le 365ᵉ jour ?',
+    bullets: ["Cette société, c'est celle du film <b>American Nightmare</b> (<b>The Purge</b>, 2013)", "Le prix de la paix : <b>la Purge</b>", "Une nuit par an, <b>12 heures</b>, toute criminalité, <b>meurtre compris</b>, devient légale", "Vendu comme un <b>défouloir national</b>, un sacrifice civique consenti", "L'utopie n'existe que parce que <b>la paix est achetée par le sang</b>"],
+    video: 'K0LLaybEuzA' },
+  { kind: 'content', cls: 'red', kicker: 'La dérive sécuritaire', title: 'La sécurité : un produit de luxe',
+    bullets: ["La Purge révèle une <b>fracture sociale monstrueuse</b>", "Les <b>riches</b> se barricadent derrière des systèmes de sécurité de pointe : nuit tranquille", "Les <b>pauvres</b> sont d'une vulnérabilité totale", "Un <b>darwinisme social</b> impitoyable : le bonheur des uns repose sur le massacre des autres"],
+    stat: { v: 'Sécurité ≠ droit', l: 'elle devient un privilège réservé à ceux qui peuvent la payer' } },
+  { kind: 'content', cls: 'red', kicker: 'L\'effondrement du bonheur', title: 'Détruire l\'humain de l\'intérieur',
+    bullets: ["<b>La paranoïa</b> : comment être heureux quand son voisin peut nous assassiner légalement ?", "<b>La perte d'empathie</b> : on s'anesthésie et on ferme les yeux sur la détresse des autres", "<b>L'isolement</b> : à force de se blinder derrière des portes d'acier, on se déshumanise", "On garantit sa survie, mais <b>on ne vit plus</b>"],
+    stat: { v: 'Survivre ≠ vivre', l: 'la sécurité absolue a un coût psychologique' } },
+  { kind: 'cloud', id: 'w1', max: 0, readonly: true, question: 'Revenons à vos mots du début…', hint: '' },
+  { kind: 'content', kicker: 'Conclusion', title: 'La survie n\'est pas le bonheur',
+    bullets: ["American Nightmare nous prouve une chose : <b>la survie n'est pas le bonheur</b>", "Vouloir une sécurité absolue au point de sacrifier son empathie ne mène pas à la liberté, mais à <b>une prison dorée, paranoïaque et angoissante</b>", "Le vrai bonheur nécessite sans doute ce que cette société a détruit : <b>le lien humain, la confiance et l'empathie</b>"] },
   { kind: 'end', title: 'Merci !', sub: 'Des questions ?' },
 ];
 
@@ -93,7 +83,8 @@ const state = Object.assign({ cur: 0, step: 0, open: true, words: {}, wvoters: {
 state.cur = Math.min(state.cur, slides.length - 1);
 const save = () => localStorage.deck2 = JSON.stringify(state);
 const S = () => slides[state.cur];
-const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + (s.stat ? 1 : 0) : 0;
+const statsOf = s => s.stats || (s.stat ? [s.stat] : []);
+const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + statsOf(s).length : 0;
 const wid = s => s.id + '.' + (state.ver[s.id] || 0);
 
 const view = () => {
@@ -118,7 +109,7 @@ function render() {
   else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${s.title}</h1>${s.sub ? `<div class="sub">${s.sub}</div>` : ""}`;
   else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
   else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
-    + ((s.stat || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${s.stat ? `<div class="stat"><div class="v">${s.stat.v}</div><div class="l">${s.stat.l}</div></div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
+    + ((statsOf(s).length || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${statsOf(s).length ? `<div class="srow">${statsOf(s).map(x => `<div class="stat"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
   else if (s.kind === 'cloud') {
     el.innerHTML = `<div class="kicker">${s.readonly ? 'Nuage de mots de la classe' : 'À vous : envoyez vos mots'}</div><h2></h2><div class="pollwrap"><div class="pollmain"><div id="cloud"></div><div class="tot" id="tot"></div></div>`
       + (s.readonly ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
@@ -168,7 +159,7 @@ function draw() {
   if (s.kind === 'content') {
     const n = s.bullets?.length || 0;
     document.querySelectorAll('li').forEach((li, i) => li.classList.toggle('show', i < state.step));
-    document.querySelector('.stat')?.classList.toggle('show', state.step > n || (!n && state.step >= 1));
+    document.querySelectorAll('.stat').forEach((el, i) => el.classList.toggle('show', state.step > n + i));
   }
   if (s.kind === 'cloud') drawCloud(s);
 }
