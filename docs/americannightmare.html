@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>American Nightmare : pas de bonheur sans sécurité - Anthony Panizza</title>
+<style>
+:root{--bg:#12060a;--card:#2a0d14;--txt:#f8fafc;--mut:#a8a3b0;--a:#ef4444;--b:#f97316;--hl:#facc15}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;overflow:hidden;font-family:system-ui,'Segoe UI',sans-serif;color:var(--txt);
+ background:radial-gradient(60vw 60vh at 85% 10%,#7f1d1d66,transparent),radial-gradient(50vw 50vh at 5% 95%,#1e3a8a44,transparent),var(--bg)}
+#prog{position:fixed;top:0;left:0;height:.5vh;background:linear-gradient(90deg,var(--a),var(--b));transition:width .4s}
+.slide{position:absolute;inset:0;padding:7vh 6vw 9vh;display:flex;flex-direction:column;justify-content:center;animation:in .5s ease}
+@keyframes in{from{opacity:0;transform:translateY(2vh)}to{opacity:1;transform:none}}
+.kicker{font-size:1.5vw;letter-spacing:.25em;text-transform:uppercase;color:var(--b);margin-bottom:2vh;font-weight:600}
+h1{font-size:5.6vw;line-height:1.05;margin:0 0 3vh;background:linear-gradient(90deg,#fff,#fecaca);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:3.4vw;line-height:1.15;margin:0 0 4vh}
+.sub{font-size:2.2vw;color:var(--mut)}
+.cols{display:flex;gap:4vw;align-items:center}
+ul{list-style:none;margin:0;padding:0;flex:1}
+li{font-size:2.2vw;line-height:1.35;margin:0 0 2.6vh;padding-left:2.4vw;position:relative;opacity:0;transform:translateX(-2vw);transition:.5s}
+li::before{content:'';position:absolute;left:0;top:.6em;width:.9vw;height:.9vw;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
+li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
+.stat{width:30vw;background:var(--card);border:1px solid #ffffff18;border-radius:2vw;padding:4vh 2vw;text-align:center;opacity:0;transform:scale(.92);transition:.6s}
+.stat.show{opacity:1;transform:none}
+.stat .v{font-size:4.6vw;font-weight:800;background:linear-gradient(90deg,var(--hl),#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .l{font-size:1.5vw;color:var(--mut);margin-top:1.5vh}
+.src{position:absolute;left:6vw;right:6vw;bottom:7vh;font-size:1.1vw;color:#78716c}
+.slide.title,.slide.end,.slide.qr{align-items:center;text-align:center}
+.slide.title h1{font-size:6.2vw}.author{margin-top:5vh;font-size:1.8vw;color:var(--mut)}
+.qrbox{background:#fff;border-radius:2vw;padding:1.2vw;height:52vh;aspect-ratio:1;margin:2vh 0}.qrbox svg{width:100%;height:100%;display:block}
+.slide.qr h1{font-size:4.4vw;margin-bottom:1vh}.url{font-size:1.4vw;color:var(--mut);word-break:break-all}
+.cnt{font-size:2.2vw;color:var(--b);margin-top:1vh;font-weight:600}
+.pollwrap{display:flex;gap:4vw;flex:1;min-height:0}.pollmain{flex:1;display:flex;flex-direction:column;min-height:0}.pollside{width:17vw;text-align:center;font-size:1.3vw;color:var(--mut)}
+.pollside .qrbox{height:auto;width:100%;padding:.7vw;border-radius:1.2vw}
+.slide.cloud{justify-content:flex-start;padding-top:5vh}
+.slide.cloud h2{font-size:2.8vw;margin-bottom:1vh}
+#cloud{flex:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:1vh 2vw;overflow:hidden;padding:2vh 0}
+#cloud span{font-weight:800;line-height:1.05;cursor:pointer;animation:pop .6s cubic-bezier(.2,1.4,.4,1);transition:font-size .6s}
+@keyframes pop{from{opacity:0;transform:scale(.2) rotate(-8deg)}to{opacity:1;transform:none}}
+.tot{font-size:1.6vw;color:var(--mut)}
+#bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.2;transition:opacity .2s;z-index:5}
+#bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar .info{color:#94a3b8;font-size:.85rem;margin-left:auto}
+</style></head><body>
+<div id="prog"></div>
+<section id="slide" class="slide"></section>
+<div id="bar">
+  <button id="prev">◀</button><button id="next">▶</button>
+  <button id="toggle"></button><button id="reset">Remise à zéro</button><button id="full">⛶ Plein écran</button>
+  <span class="info" id="n"></span><span class="info" style="margin-left:0">← → naviguer · Espace ouvrir/fermer les envois · F plein écran · cliquer un mot pour le retirer</span>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+const slides = [
+  { kind: 'qr' },
+  { kind: 'title', kicker: 'Dystopie & philosophie', title: 'American Nightmare : pas de bonheur sans sécurité', sub: 'Que reste-t-il de notre bonheur quand la sécurité disparaît ?', author: 'Anthony Panizza' },
+  { kind: 'cloud', id: 'w1', max: 3, question: 'Selon vous, quelle est la chose la plus importante pour garantir votre bonheur ?', hint: 'Envoyez jusqu\'à 3 mots depuis votre téléphone' },
+  { kind: 'content', kicker: 'Le film', title: 'American Nightmare (The Purge, 2013)',
+    bullets: ["Réalisé par <b>James DeMonaco</b>, dans une Amérique du futur", "Une nuit par an, <b>tous les crimes sont légaux</b> : la « Purge »", "Le reste de l'année, le gouvernement vante <b>un chômage et une criminalité quasi nuls</b>", "Une société « heureuse »… <b>au prix d'une nuit sans loi</b>"],
+    stat: { v: '12 h', l: 'sans police, sans secours, sans loi' } },
+  { kind: 'content', kicker: 'Ce que montre le film', title: 'La sécurité : un privilège',
+    bullets: ["Les <b>riches</b> blindent leur maison et s'achètent la sécurité", "Les <b>pauvres</b> n'ont pas les moyens de se protéger : ils sont les premières cibles", "Sans règles communes, <b>personne n'est vraiment en sécurité</b>", "Même derrière des portes blindées, le bonheur laisse place à <b>la peur</b>"] },
+  { kind: 'content', kicker: 'Philosophie politique', title: 'Hobbes : l\'état de nature',
+    bullets: ["Sans autorité commune, c'est la <b>guerre de chacun contre chacun</b>", "La vie y est « <b>solitaire, pauvre, méchante, brutale et brève</b> »", "On accepte donc des lois pour obtenir <b>la sécurité</b>", "La Purge, c'est <b>un retour volontaire à l'état de nature</b>"],
+    stat: { v: '1651', l: 'Thomas Hobbes, Léviathan' } },
+  { kind: 'content', kicker: 'Psychologie', title: 'La pyramide de Maslow',
+    bullets: ["1. Besoins <b>physiologiques</b> (manger, dormir)", "2. <b>Sécurité</b> (être protégé, stabilité)", "3. Appartenance (aimer, être aimé)", "4. Estime  ·  5. Accomplissement de soi", "Les besoins du bas doivent être <b>satisfaits en premier</b>"],
+    stat: { v: '2ᵉ marche', l: 'la sécurité vient juste après les besoins vitaux' }, src: "Source : Abraham Maslow, « A Theory of Human Motivation », 1943" },
+  { kind: 'content', kicker: 'Droit', title: 'La sûreté, un droit fondamental',
+    bullets: ["Déclaration des droits de l'homme de <b>1789</b>, article 2", "Les droits naturels : <b>liberté, propriété, sûreté</b> et résistance à l'oppression", "La sûreté protège chacun <b>contre l'arbitraire</b> et la violence", "Sans elle, les autres libertés <b>n'existent que sur le papier</b>"] },
+  { kind: 'cloud', id: 'w1', max: 3, readonly: true, question: 'Et vos mots à vous ? La sécurité apparaît-elle ?', hint: 'Regardez ce que la classe a choisi' },
+  { kind: 'content', kicker: 'Nuance', title: 'Sécurité ≠ bonheur à elle seule',
+    bullets: ["La sécurité est <b>une condition</b>, pas une garantie du bonheur", "Une sécurité absolue peut <b>coûter la liberté</b> (surveillance, contrôle)", "Le film le montre aussi : <b>la peur permet de gouverner</b>", "Le défi : <b>trouver l'équilibre</b> entre sécurité et liberté"] },
+  { kind: 'content', kicker: 'Conclusion', title: 'Pas de bonheur sans sécurité',
+    bullets: ["Sans sécurité, on vit dans <b>la peur et l'urgence</b>", "Elle rend possibles <b>nos projets, nos liens, nos libertés</b>", "American Nightmare nous montre <b>ce qui reste quand elle disparaît</b>", "Le bonheur commence quand <b>on n'a plus peur</b>"] },
+  { kind: 'end', title: 'Merci !', sub: 'Des questions ?' },
+];
+
+const state = Object.assign({ cur: 0, step: 0, open: true, words: {}, wvoters: {}, ver: {} }, JSON.parse(localStorage.deck2 || 'null') || {});
+state.cur = Math.min(state.cur, slides.length - 1);
+const save = () => localStorage.deck2 = JSON.stringify(state);
+const S = () => slides[state.cur];
+const maxStep = s => s.kind === 'content' ? (s.bullets?.length || 0) + (s.stat ? 1 : 0) : 0;
+const wid = s => s.id + '.' + (state.ver[s.id] || 0);
+
+const view = () => {
+  const s = S();
+  return { intro: s.kind === 'qr', poll: null, open: state.open,
+    words: s.kind === 'cloud' && !s.readonly ? { id: wid(s), question: s.question, max: s.max } : null };
+};
+
+const hostId = localStorage.hostId2 ||= 'diapo-' + Math.random().toString(36).slice(2, 10);
+const voterUrl = new URL('./?h=' + hostId, location.href).href;
+const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
+const qrSvg = qr.createSvgTag({ scalable: true, margin: 0 });
+
+const conns = new Set();
+const broadcast = () => { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); };
+
+function render() {
+  const s = S(), el = $('slide');
+  el.className = 'slide ' + s.kind;
+  const kick = s.kicker ? `<div class="kicker">${s.kicker}</div>` : '';
+  if (s.kind === 'qr') el.innerHTML = `<h1>🔒 Rejoignez la discussion</h1><div class="sub">Scannez le QR code pour participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
+  else if (s.kind === 'title') el.innerHTML = `${kick}<h1>${s.title}</h1><div class="sub">${s.sub}</div><div class="author">${s.author}</div>`;
+  else if (s.kind === 'end') el.innerHTML = `<h1>${s.title}</h1><div class="sub">${s.sub}</div>`;
+  else if (s.kind === 'content') el.innerHTML = `${kick}<h2>${s.title}</h2><div class="cols"><ul>${(s.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>`
+    + (s.stat ? `<div class="stat"><div class="v">${s.stat.v}</div><div class="l">${s.stat.l}</div></div>` : '') + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
+  else if (s.kind === 'cloud') {
+    el.innerHTML = `<div class="kicker">${s.readonly ? 'Nuage de mots de la classe' : 'À vous : envoyez vos mots'}</div><h2></h2><div class="pollwrap"><div class="pollmain"><div id="cloud"></div><div class="tot" id="tot"></div></div>`
+      + (s.readonly ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
+    el.querySelector('h2').textContent = s.question;
+  }
+  $('prog').style.width = (state.cur + 1) / slides.length * 100 + '%';
+}
+
+const colors = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9', '#f472b6'];
+const hash = w => [...w].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+function drawCloud(s) {
+  const id = s.id + '.' + (state.ver[s.id] || 0), w = state.words[s.id] || {}, cloud = $('cloud');
+  const entries = Object.entries(w), max = Math.max(1, ...entries.map(e => e[1])), total = entries.reduce((a, e) => a + e[1], 0);
+  const base = entries.length > 25 ? 2.2 : entries.length > 12 ? 3 : 3.8;
+  const present = new Set(entries.map(e => e[0]));
+  [...cloud.children].forEach(c => { if (!present.has(c.dataset.w)) c.remove(); });
+  entries.forEach(([word, n]) => {
+    let sp = [...cloud.children].find(c => c.dataset.w === word);
+    if (!sp) {
+      sp = document.createElement('span'); sp.dataset.w = word; sp.textContent = word;
+      sp.style.color = colors[hash(word) % colors.length];
+      sp.title = 'Cliquer pour retirer ce mot';
+      sp.onclick = () => { delete state.words[s.id][word]; update(); };
+      cloud.appendChild(sp);
+    }
+    sp.style.fontSize = (base + (n / max) * base * 1.6 * (max > 1 ? 1 : 0)) + 'vw';
+  });
+  $('tot').textContent = `${total} mot${total > 1 ? 's' : ''} envoyé${total > 1 ? 's' : ''}` + (!s.readonly && !state.open ? ' · envois fermés' : '');
+}
+
+function draw() {
+  const s = S();
+  $('toggle').textContent = state.open ? '⏸ Fermer les envois' : '▶ Ouvrir les envois';
+  $('n').textContent = `${state.cur + 1}/${slides.length} · ${conns.size} connecté(s)`;
+  if ($('cnt')) $('cnt').textContent = conns.size + ' personne' + (conns.size > 1 ? 's' : '') + ' connectée' + (conns.size > 1 ? 's' : '');
+  if (s.kind === 'content') {
+    const n = s.bullets?.length || 0;
+    document.querySelectorAll('li').forEach((li, i) => li.classList.toggle('show', i < state.step));
+    document.querySelector('.stat')?.classList.toggle('show', state.step > n || (!n && state.step >= 1));
+  }
+  if (s.kind === 'cloud') drawCloud(s);
+}
+const update = () => { save(); draw(); broadcast(); };
+const changed = () => { render(); update(); };
+const next = () => {
+  if (state.step < maxStep(S())) { state.step++; update(); }
+  else if (state.cur < slides.length - 1) { state.cur++; state.step = 0; changed(); }
+};
+const prev = () => {
+  if (state.step > 0 && S().kind === 'content') { state.step--; update(); }
+  else if (state.cur > 0) { state.cur--; state.step = maxStep(S()); changed(); }
+};
+
+function onWord(conn, d) {
+  const s = S(), err = (e, count) => conn.send({ t: 'wack', ok: false, error: e, pollId: d.pollId, count });
+  if (s.kind !== 'cloud' || s.readonly || wid(s) !== d.pollId || !state.open || !d.clientId) return err('refused');
+  const word = String(d.word || '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 24);
+  if (!word) return err('refused');
+  const vs = state.wvoters[wid(s)] ||= {}, used = vs[d.clientId] || 0;
+  if (used >= s.max) return err('max', used);
+  vs[d.clientId] = used + 1;
+  const w = state.words[s.id] ||= {};
+  w[word] = (w[word] || 0) + 1;
+  conn.send({ t: 'wack', ok: true, pollId: d.pollId, count: used + 1 });
+  update();
+}
+
+function startPeer() {
+  const peer = new Peer(hostId);
+  peer.on('connection', conn => {
+    conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
+    conn.on('data', d => d.t === 'word' && onWord(conn, d));
+    conn.on('close', () => { conns.delete(conn); draw(); });
+  });
+  peer.on('disconnected', () => peer.reconnect());
+  peer.on('error', e => { if (e.type === 'unavailable-id') document.body.textContent = 'Cet écran est déjà ouvert dans un autre onglet. Fermez-le puis rechargez.'; });
+}
+
+$('prev').onclick = prev; $('next').onclick = next;
+$('toggle').onclick = () => { state.open = !state.open; update(); };
+$('reset').onclick = () => {
+  const s = S();
+  if (s.kind !== 'cloud') return alert('Placez-vous sur la diapo du nuage de mots pour le remettre à zéro.');
+  if (!confirm('Effacer tous les mots ?')) return;
+  delete state.words[s.id]; delete state.wvoters[wid(s)];
+  state.ver[s.id] = (state.ver[s.id] || 0) + 1;
+  $('cloud').innerHTML = '';
+  update();
+};
+$('full').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', 'Enter'].includes(e.key)) next();
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) prev();
+  else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
+  else if (e.key.toLowerCase() === 'f') $('full').click();
+});
+
+render(); draw(); startPeer();
+</script></body></html>

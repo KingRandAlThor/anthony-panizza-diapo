@@ -17,9 +17,32 @@ const cid = localStorage.cid ||= (crypto.randomUUID?.() || String(Math.random())
 const voted = () => JSON.parse(localStorage.voted || '{}');
 let s, conn, msg = '', lastPoll;
 
+function renderWords() {
+  const w = s.words, key = 'w' + w.id;
+  if (app.dataset.k !== key) {
+    app.dataset.k = key;
+    app.innerHTML = '<h1></h1><input id="wi" maxlength="24" autocomplete="off" placeholder="Un mot…" style="width:100%;padding:16px;font-size:1.2rem;border-radius:12px;border:0;box-sizing:border-box"><button id="ws">Envoyer</button><p class="msg" id="wm"></p>';
+    app.querySelector('h1').textContent = w.question;
+    const send = () => {
+      const i = document.getElementById('wi'), word = i.value.trim();
+      if (!word || (sent()[w.id] || 0) >= w.max) return;
+      conn.send({ t: 'word', pollId: w.id, word, clientId: cid });
+      i.value = '';
+    };
+    document.getElementById('ws').onclick = send;
+    document.getElementById('wi').onkeydown = e => e.key === 'Enter' && send();
+  }
+  const left = w.max - (sent()[w.id] || 0);
+  document.getElementById('wi').disabled = document.getElementById('ws').disabled = left <= 0 || !s.open;
+  document.getElementById('wm').textContent = msg || (!s.open ? 'Les envois sont fermés.' : left > 0 ? `Il vous reste ${left} mot${left > 1 ? 's' : ''}` : 'Merci ! Regardez l\'écran 👀');
+}
+const sent = () => JSON.parse(localStorage.sentWords || '{}');
+
 function render() {
   if (!hostId) { app.innerHTML = '<p class="msg">Scannez le QR code affiché à l\'écran.</p>'; return; }
   if (!s) { app.innerHTML = '<p class="msg">Connexion…</p>'; return; }
+  if (s.words) return renderWords();
+  app.dataset.k = '';
   if (!s.poll) { app.innerHTML = '<h1>🧠 Vous êtes dans la machine !</h1><p class="msg">' + (s.intro ? 'La première question arrive…' : 'Regardez l\'écran 👀') + '</p>'; return; }
   const v = voted()[s.poll.id], has = v !== undefined;
   app.innerHTML = '<h1></h1>' + s.poll.options.map(() => '<button></button>').join('') + '<p class="msg"></p>';
@@ -40,7 +63,13 @@ function connect() {
     conn.on('data', d => {
       if (d.t === 'state') {
         s = d.state;
-        if (s.poll?.id !== lastPoll) { msg = ''; lastPoll = s.poll?.id; }
+        if ((s.poll?.id ?? s.words?.id) !== lastPoll) { msg = ''; lastPoll = s.poll?.id ?? s.words?.id; }
+        render();
+      } else if (d.t === 'wack') {
+        const m = sent();
+        if (d.ok) { m[d.pollId] = d.count; msg = ''; }
+        else { if (d.count != null) m[d.pollId] = d.count; msg = d.error === 'max' ? 'Vous avez envoyé tous vos mots.' : 'Mot refusé.'; }
+        localStorage.sentWords = JSON.stringify(m);
         render();
       } else if (d.t === 'ack') {
         const v = voted();
