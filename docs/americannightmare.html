@@ -90,18 +90,12 @@ const slides = [
     { t: 'Aristote : l\'<b>eudaimonia</b>, bien vivre en épanouissant ce qui fait de nous des humains', cls: 'sm' },
     { t: 'Épicure : l\'<b>ataraxie</b>, la tranquillité de l\'âme, sans trouble ni crainte', cls: 'sm' },
     { t: 'Alors, <b>qu\'est-ce qui nous rend heureux</b> ?', cls: 'em' } ] },
-  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui vous rend heureux ?', hint: '' },
-  { kind: 'content', mood: 'calm', kicker: 'Psychologie', title: 'Avant d\'être heureux, il faut tenir debout',
-    bullets: ["Maslow (1943) : nos besoins forment une <b>pyramide</b>", "À la base : manger, dormir… puis la <b>sécurité</b> : corps, emploi, ressources, stabilité", "Sans ces bases, difficile de viser l'<b>appartenance</b>, l'<b>estime</b> ou l'<b>accomplissement</b>", "La sécurité est-elle alors <b>une condition</b> du bonheur… ou <b>le bonheur lui-même</b> ?"],
+  { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, question: 'Selon vous, qu\'est-ce qui vous rend heureux ?', hint: 'Envoyez autant de mots que vous voulez !' },
+  { kind: 'content', mood: 'calm', kicker: 'Les besoins essentiels', title: 'De quoi avons-nous besoin pour nous épanouir ?',
+    bullets: ["Maslow (1943) : nos besoins forment une <b>pyramide</b>", "À la base : manger, dormir… puis la <b>sécurité</b> : corps, emploi, ressources, stabilité", "Ensuite seulement : l'<b>appartenance</b>, l'<b>estime</b>, l'<b>accomplissement</b>", "Imaginons une société qui comblerait <b>tous ces besoins essentiels</b>…"],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Maslow%27s_Hierarchy_of_Needs.svg?width=900', cap: 'Pyramide de Maslow (Wikimedia Commons, CC BY-SA 3.0)' },
-  { kind: 'content', mood: 'calm', kicker: 'Philosophie politique', title: 'Le contrat social : échanger de la liberté contre de la sécurité',
-    bullets: ["Hobbes (<i>Léviathan</i>, 1651) : sans pouvoir commun, c'est la <b>guerre de tous contre tous</b>", "Pour y échapper, on <b>cède une part de sa liberté</b> à un pouvoir qui nous protège", "Locke, Rousseau : ce pouvoir doit <b>protéger</b> nos droits, pas les <b>sacrifier</b>", "Toute la question : <b>combien</b> de liberté accepte-t-on de céder ?"],
-    stat: { v: '« guerre de tous contre tous »', l: 'Hobbes, Léviathan (1651)' } },
-  { kind: 'content', mood: 'calm', kicker: 'Le dilemme', title: 'Liberté ou sécurité ?',
-    bullets: ["Plus de <b>sécurité</b> = plus de règles, de contrôle, de surveillance", "Plus de <b>liberté</b> = plus d'incertitude et de risques", "Une phrase attribuée à Benjamin Franklin : celui qui sacrifie une liberté essentielle pour un peu de sécurité temporaire <b>ne mérite ni l'une ni l'autre</b>", "Alors, jusqu'où irait <b>votre</b> contrat ?"],
-    stat: { v: 'Jusqu\'où ?', l: 'À quel prix accepteriez-vous d\'être en sécurité ?' } },
   { kind: 'big', mood: 'calm', kicker: 'Une expérience de pensée', lines: [
-    'Imaginons une société qui aurait trouvé la réponse.',
+    'Une nation a trouvé la réponse.',
     { t: 'Ses dirigeants ont fait <b>une promesse</b>…', cls: 'sm' },
     { t: '…et ils l\'ont <b>tenue</b>.', cls: 'em' } ] },
   { kind: 'content', mood: 'calm', kicker: 'L\'utopie', title: 'Une nation sans crise',
@@ -120,11 +114,17 @@ const slides = [
     { t: '<i>The Purge</i>, 2013', cls: 'sm' },
     { t: 'Une fiction peut servir d\'<b>expérience de pensée</b> : que révèle-t-elle de la sécurité ?', cls: 'sm' } ], video: 'K0LLaybEuzA' },
   { kind: 'content', mood: 'red', kicker: 'Première fracture', title: 'La sécurité devient un produit de luxe',
-    bullets: ["Les <b>riches</b> se barricadent derrière des systèmes de sécurité de pointe", "Les <b>pauvres</b> sont d'une vulnérabilité totale", "Un <b>darwinisme social</b> : le bonheur des uns repose sur le malheur des autres", "Rawls (1971) : choisiriez-vous cette société <b>sans savoir</b> si vous naîtrez riche ou pauvre ? C'est le <b>voile d'ignorance</b>"],
+    bullets: ["Les <b>riches</b> se barricadent derrière des systèmes de sécurité de pointe", "Les <b>pauvres</b> sont d'une vulnérabilité totale", "Un <b>darwinisme social</b> : le bonheur des uns repose sur le malheur des autres"],
     stat: { v: 'Droit ou privilège ?', l: 'une sécurité réservée à ceux qui peuvent la payer n\'est plus une sécurité commune' } },
   { kind: 'content', mood: 'red', kicker: 'Seconde fracture', title: 'Ce que la sécurité absolue détruit',
-    bullets: ["<b>La paranoïa</b> : comment être heureux quand son voisin pourrait nous tuer légalement ?", "<b>La perte d'empathie</b> : on s'anesthésie et on ferme les yeux sur la détresse des autres", "<b>L'isolement</b> : à force de se blinder, on se coupe des autres", "Aristote : l'être humain est un <b>animal politique</b>, il ne s'épanouit qu'avec les autres"],
-    stat: { v: 'Survivre ≠ vivre', l: 'on garantit sa survie, mais on ne vit plus' } },
+    bullets: ["<b>La paranoïa</b> : comment être heureux quand son voisin pourrait nous tuer légalement ?", "<b>La perte d'empathie</b> : on s'anesthésie et on ferme les yeux sur la détresse des autres", "<b>L'isolement</b> : à force de se blinder, on se coupe des autres", "On garantit sa survie, mais <b>on ne vit plus</b>"],
+    stat: { v: 'Survivre ≠ vivre', l: 'la sécurité absolue a un coût psychologique' } },
+  { kind: 'content', mood: 'calm', kicker: 'Analyse : philosophie politique', title: 'Le contrat social : de la liberté contre de la sécurité',
+    bullets: ["Hobbes (<i>Léviathan</i>, 1651) : sans pouvoir commun, c'est la <b>guerre de tous contre tous</b>", "Pour y échapper, on <b>cède une part de sa liberté</b> à un pouvoir qui nous protège", "Locke, Rousseau : ce pouvoir doit <b>protéger</b> nos droits, pas les <b>sacrifier</b>", "Une phrase attribuée à Franklin : sacrifier une liberté essentielle pour un peu de sécurité <b>ne mérite ni l'une ni l'autre</b>"],
+    stat: { v: '« guerre de tous contre tous »', l: 'Hobbes, Léviathan (1651)' } },
+  { kind: 'content', mood: 'calm', kicker: 'Analyse : justice et lien humain', title: 'Ce que cette société a oublié',
+    bullets: ["Rawls (1971) : choisiriez-vous cette société <b>sans savoir</b> si vous naîtrez riche ou pauvre ? C'est le <b>voile d'ignorance</b>", "Aristote : l'être humain est un <b>animal politique</b>, il ne s'épanouit qu'avec les autres", "Une sécurité qui <b>divise</b> et qui <b>isole</b> détruit ce qu'elle prétend protéger"],
+    stat: { v: 'Jusqu\'où ?', l: 'À quel prix accepteriez-vous d\'être en sécurité ?' } },
   { kind: 'cloud', mood: 'calm', id: 'w1', max: 0, readonly: true, question: 'Revenons à vos mots du début…', hint: '' },
   { kind: 'big', mood: 'calm', kicker: 'Conclusion', lines: [
     { t: 'La <b>sécurité</b> est une condition du bonheur.', cls: 'sm' },
@@ -148,7 +148,7 @@ const view = () => {
     words: s.kind === 'cloud' && !s.readonly ? { id: wid(s), question: s.question, max: s.max } : null };
 };
 
-const hostId = localStorage.hostId2 ||= 'diapo-' + Math.random().toString(36).slice(2, 10);
+const hostId = 'diapo-bonheur-7k3q9x2m';
 const voterUrl = new URL('./?h=' + hostId, location.href).href;
 const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
 const qrSvg = qr.createSvgTag({ scalable: true, margin: 0 });
@@ -170,7 +170,7 @@ function render() {
     + ((statsOf(s).length || s.img || s.video) ? `<div class="rcol">${s.video ? `<iframe class="vid" src="https://www.youtube-nocookie.com/embed/${s.video}" allowfullscreen allow="encrypted-media; picture-in-picture"></iframe>` : ""}${s.img ? `<figure class="fig"><img src="${s.img}" alt=""><figcaption>${s.cap || ""}</figcaption></figure>` : ""}${statsOf(s).length ? `<div class="srow">${statsOf(s).map(x => `<div class="stat"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>` : ""}</div>` : "") + `</div>` + (s.src ? `<div class="src">${s.src}</div>` : '');
   else if (s.kind === 'cloud') {
     el.innerHTML = `<div class="kicker">${s.readonly ? 'Nuage de mots de la classe' : 'À vous : envoyez vos mots'}</div><h2></h2><div class="pollwrap"><div class="pollmain"><div id="cloud"></div><div class="tot" id="tot"></div></div>`
-      + (true ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
+      + (s.readonly ? '' : `<div class="pollside"><div>Scannez pour répondre</div><div class="qrbox">${qrSvg}</div><div>${s.hint}</div></div>`) + `</div>`;
     el.querySelector('h2').textContent = s.question;
   }
   $('prog').style.width = (state.cur + 1) / slides.length * 100 + '%';
