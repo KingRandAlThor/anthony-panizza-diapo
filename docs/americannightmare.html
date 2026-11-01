@@ -167,6 +167,7 @@ function render() {
   const s = S(), el = $('slide');
   el.className = 'slide ' + s.kind;
   document.body.className = s.mood || '';
+  if ($('qro')) $('qro').style.display = 'none';
   const kick = s.kicker ? `<div class="kicker">${s.kicker}</div>` : '';
   const lines = (s.lines || []).map(l => typeof l === 'string' ? { t: l } : l);
   if (s.kind === 'qr') el.innerHTML = `<h1>🔒 Rejoignez la discussion</h1><div class="sub">Scannez le QR code pour participer depuis votre téléphone</div><div class="qrbox">${qrSvg}</div><div class="url">${voterUrl}</div><div class="cnt" id="cnt"></div>`;
@@ -323,9 +324,19 @@ addEventListener('keydown', e => {
   else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
   else if (e.key.toLowerCase() === 'f') $('full').click();
   else if (e.key.toLowerCase() === 'q') {
-    const o = $('qro') || Object.assign(document.createElement('div'), { id: 'qro' });
-    if (!o.parentNode) { o.style.cssText = 'position:fixed;inset:0;z-index:9;background:#000d;display:none;align-items:center;justify-content:center'; o.innerHTML = `<div class="qrbox" style="height:70vh">${qrSvg}</div>`; o.onclick = () => o.style.display = 'none'; document.body.appendChild(o); }
-    o.style.display = o.style.display === 'flex' ? 'none' : 'flex';
+    let o = $('qro');
+    if (!o) {
+      o = document.createElement('div'); o.id = 'qro';
+      o.style.cssText = 'position:fixed;inset:0;z-index:9;background:#000d;display:none;align-items:center;justify-content:center';
+      o.onclick = () => o.style.display = 'none';
+      document.body.appendChild(o);
+    }
+    if (o.style.display === 'flex') { o.style.display = 'none'; return; }
+    const s = S();
+    o.innerHTML = s.img
+      ? `<img src="${s.img}" alt="" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:1vw;background:#fff">`
+      : `<div class="qrbox" style="height:80vh">${qrSvg}</div>`;
+    o.style.display = 'flex';
   }
 });
 
