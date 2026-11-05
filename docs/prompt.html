@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invite de prompt</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#fff;padding:24px;box-sizing:border-box;min-height:100vh}
+main{max-width:720px;margin:0 auto}
+h1{font-size:1.4rem}
+select,textarea,button{width:100%;box-sizing:border-box;font:inherit;border-radius:12px;border:0;padding:14px;margin:8px 0}
+textarea{min-height:180px;resize:vertical}
+button{background:#3b82f6;color:#fff;cursor:pointer}
+button:hover{background:#2563eb}
+.msg{color:#94a3b8;font-size:.9rem}
+</style></head><body><main>
+<h1>✏️ Demander une modification</h1>
+<p class="msg">Écrivez votre demande : elle est envoyée comme ticket GitHub, prête à être traitée.</p>
+<select id="page">
+<option value="americannightmare.html">Diaporama American Nightmare</option>
+<option value="index.html">Page de vote</option>
+<option value="screen.html">Écran</option>
+</select>
+<textarea id="p" placeholder="Ex. : remplace le titre de la diapo 3 par…"></textarea>
+<button id="go">Envoyer la demande</button>
+<p class="msg" id="m"></p>
+<script>
+const REPO = 'KingRandAlThor/anthony-panizza-diapo';
+const p = document.getElementById('p');
+p.value = localStorage.promptDraft || '';
+p.oninput = () => localStorage.promptDraft = p.value;
+document.getElementById('go').onclick = () => {
+  const t = p.value.trim();
+  if (!t) { document.getElementById('m').textContent = 'Écrivez d\'abord une demande.'; return; }
+  const page = document.getElementById('page').value;
+  const u = new URL(`https://github.com/${REPO}/issues/new`);
+  u.searchParams.set('title', 'Modification : ' + t.slice(0, 60));
+  u.searchParams.set('body', `Page : docs/${page}\n\n${t}`);
+  window.open(u, '_blank', 'noopener');
+};
+</script></main></body></html>

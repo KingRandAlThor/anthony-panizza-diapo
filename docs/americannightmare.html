@@ -314,7 +314,10 @@ function startPeer() {
   peer.on('open', () => st('🟢 en ligne'));
   peer.on('connection', conn => {
     conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
-    conn.on('data', d => d.t === 'word' && onWord(conn, d));
+    conn.on('data', d => {
+      if (d.t === 'word') onWord(conn, d);
+      else if (d.t === 'nav') { if (d.d > 0) next(); else if (d.d < 0) prev(); }
+    });
     conn.on('close', () => { conns.delete(conn); draw(); });
   });
   peer.on('disconnected', () => peer.reconnect());
@@ -337,6 +340,7 @@ $('reset').onclick = () => {
 };
 $('full').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 addEventListener('keydown', e => {
+  if (e.target.closest?.('#pbox')) return;
   if (['ArrowRight', 'PageDown', 'Enter'].includes(e.key)) next();
   else if (['ArrowLeft', 'PageUp'].includes(e.key)) prev();
   else if (e.key === ' ') { e.preventDefault(); $('toggle').click(); }
@@ -359,4 +363,38 @@ addEventListener('keydown', e => {
 });
 
 render(); draw(); startPeer();
+</script>
+<style>
+#pbtn{position:fixed;right:14px;bottom:14px;z-index:60;width:44px;height:44px;border-radius:50%;border:0;background:#3b82f6;color:#fff;font-size:20px;cursor:pointer;opacity:.7}
+#pbtn:hover{opacity:1}
+#pbox{position:fixed;right:14px;bottom:68px;z-index:60;width:min(380px,90vw);background:#0f172a;color:#fff;border-radius:14px;padding:14px;box-shadow:0 8px 30px #0008;display:none;font:15px system-ui,sans-serif}
+#pbox textarea{width:100%;box-sizing:border-box;min-height:110px;border-radius:10px;border:0;padding:10px;font:inherit;margin:8px 0}
+#pbox button{width:100%;padding:12px;border:0;border-radius:10px;background:#3b82f6;color:#fff;font:inherit;cursor:pointer}
+</style>
+<button id="pbtn" title="Demander une modification">✏️</button>
+<div id="pbox">
+  <b>Demander une modification</b>
+  <div id="pslide" style="color:#94a3b8;font-size:13px"></div>
+  <textarea id="ptxt" placeholder="Ex. : reformule le titre de cette diapo…"></textarea>
+  <button id="pgo">Envoyer</button>
+</div>
+<script>
+(() => {
+  const b = document.getElementById('pbtn'), box = document.getElementById('pbox'), t = document.getElementById('ptxt');
+  t.value = localStorage.promptDraft || '';
+  t.oninput = () => localStorage.promptDraft = t.value;
+  b.onclick = () => {
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('pslide').textContent = 'Diapo affichée : ' + (document.title || '') + ' ' + (location.hash || '');
+    if (box.style.display === 'block') t.focus();
+  };
+  document.getElementById('pgo').onclick = () => {
+    const v = t.value.trim();
+    if (!v) return;
+    const u = new URL('https://github.com/KingRandAlThor/anthony-panizza-diapo/issues/new');
+    u.searchParams.set('title', 'Modification diapo : ' + v.slice(0, 60));
+    u.searchParams.set('body', 'Page : docs/americannightmare.html\n\n' + v);
+    window.open(u, '_blank', 'noopener');
+  };
+})();
 </script></body></html>
