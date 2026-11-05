@@ -65,23 +65,38 @@ $('pv').onclick = () => follow ? remote(-1) : go(cur - 1);
 $('nxb').onclick = () => follow ? remote(1) : go(cur + 1);
 $('fl').onclick = () => go(pcCur);
 
+let gen = 0;
 function connect() {
+  const me = ++gen;
+  const st = s => me === gen && ($('st').textContent = s);
+  const retry = (msg, ms) => {
+    if (me !== gen) return;
+    gen++; st(msg); link = null;
+    try { peer.destroy(); } catch (e) {}
+    setTimeout(connect, ms);
+  };
+  st('⏳ connexion au serveur…');
   const peer = new Peer();
-  const st = s => $('st').textContent = s;
+  let got = false;
+  setTimeout(() => { if (!got) retry('🟠 pas de réponse du PC, nouvel essai…', 500); }, 12000);
   peer.on('open', () => {
+    st('⏳ recherche du PC…');
     const c = peer.connect(hostId, { reliable: true });
     link = c;
-    c.on('open', () => st('🟢 relié au PC'));
+    c.on('open', () => { if (me === gen) st('🟢 relié au PC'); });
     c.on('data', d => {
+      if (me !== gen) return;
       if (d.t === 'state' && typeof d.state.cur === 'number') {
+        got = true; st('🟢 relié au PC');
         pcCur = Math.min(d.state.cur, notes.length - 1);
         if (follow) cur = pcCur;
         draw();
       }
     });
-    c.on('close', () => { st('🟠 reconnexion…'); peer.destroy(); setTimeout(connect, 2000); });
+    c.on('close', () => retry('🟠 reconnexion…', 1500));
   });
-  peer.on('error', () => { st('🟠 PC introuvable, nouvel essai…'); peer.destroy(); setTimeout(connect, 3000); });
+  peer.on('error', e => retry('🟠 ' + (e.type === 'peer-unavailable' ? 'PC introuvable (ouvre le diaporama)' : 'erreur ' + e.type) + ', nouvel essai…', 3000));
+  peer.on('disconnected', () => { if (me === gen) peer.reconnect(); });
 }
 draw(); connect();
 </script>
