@@ -51,7 +51,7 @@ let pcCur = 0, cur = 0, follow = true;
 function draw() {
   const [h, t] = notes[cur];
   $('n').textContent = `Diapo ${cur + 1}/${notes.length}`;
-  $('k').textContent = follow ? 'Affiché sur le PC' : 'Navigation libre';
+  $('k').textContent = follow ? 'Pilote le PC' : 'Lecture libre (le PC ne bouge pas)';
   $('h').textContent = h;
   $('t').innerHTML = t;
   $('nx').textContent = cur < notes.length - 1 ? 'Ensuite : ' + notes[cur + 1][0] : '';
@@ -59,8 +59,10 @@ function draw() {
   $('fl').textContent = follow ? 'Suit le PC' : 'Revenir au PC';
 }
 function go(i) { cur = Math.max(0, Math.min(notes.length - 1, i)); follow = cur === pcCur; draw(); }
-$('pv').onclick = () => go(cur - 1);
-$('nxb').onclick = () => go(cur + 1);
+let link = null;
+const remote = d => { if (link && link.open) link.send({ t: 'nav', d }); };
+$('pv').onclick = () => follow ? remote(-1) : go(cur - 1);
+$('nxb').onclick = () => follow ? remote(1) : go(cur + 1);
 $('fl').onclick = () => go(pcCur);
 
 function connect() {
@@ -68,6 +70,7 @@ function connect() {
   const st = s => $('st').textContent = s;
   peer.on('open', () => {
     const c = peer.connect(hostId, { reliable: true });
+    link = c;
     c.on('open', () => st('🟢 relié au PC'));
     c.on('data', d => {
       if (d.t === 'state' && typeof d.state.cur === 'number') {

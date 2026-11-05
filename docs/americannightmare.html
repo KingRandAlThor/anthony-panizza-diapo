@@ -314,7 +314,10 @@ function startPeer() {
   peer.on('open', () => st('🟢 en ligne'));
   peer.on('connection', conn => {
     conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
-    conn.on('data', d => d.t === 'word' && onWord(conn, d));
+    conn.on('data', d => {
+      if (d.t === 'word') onWord(conn, d);
+      else if (d.t === 'nav') { if (d.d > 0) next(); else if (d.d < 0) prev(); }
+    });
     conn.on('close', () => { conns.delete(conn); draw(); });
   });
   peer.on('disconnected', () => peer.reconnect());
