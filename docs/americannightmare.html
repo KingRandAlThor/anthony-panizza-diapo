@@ -169,7 +169,7 @@ const wid = s => s.id + '.' + (state.ver[s.id] || 0);
 
 const view = () => {
   const s = S();
-  return { intro: s.kind === 'qr', poll: null, open: state.open,
+  return { cur: state.cur, intro: s.kind === 'qr', poll: null, open: state.open,
     words: s.kind === 'cloud' && !s.readonly ? { id: wid(s), question: s.question, max: s.max } : null };
 };
 
