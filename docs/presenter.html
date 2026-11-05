@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Script d'oral · Le bonheur a-t-il un prix ?</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#14161c;color:#f2f0ea;font-family:system-ui,Segoe UI,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 18px;background:#1d2029;font-size:15px}
+#st{opacity:.85}
+main{flex:1;padding:24px 6vw;display:flex;flex-direction:column;justify-content:center;max-width:1000px;margin:0 auto;width:100%}
+.k{color:#f5c518;font-size:clamp(16px,2.4vw,22px);letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+h1{font-size:clamp(24px,4vw,40px);margin:0 0 18px}
+#t{font-size:clamp(22px,3.6vw,38px);line-height:1.5}
+#t b{color:#f5c518}
+.nx{margin-top:26px;font-size:clamp(14px,2vw,18px);opacity:.6}
+footer{display:flex;gap:10px;padding:12px 18px;background:#1d2029}
+button{flex:1;font-size:18px;padding:14px;border:0;border-radius:12px;background:#2c3142;color:#fff}
+button.on{background:#f5c518;color:#14161c;font-weight:700}
+</style>
+</head>
+<body>
+<header><span id="n">…</span><span id="st">⏳ connexion au PC…</span></header>
+<main><div class="k" id="k"></div><h1 id="h"></h1><div id="t"></div><div class="nx" id="nx"></div></main>
+<footer><button id="pv">◀ Précédent</button><button id="fl" class="on">Suit le PC</button><button id="nxb">Suivant ▶</button></footer>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const notes = [
+  ['Titre', 'Bonjour. Notre question : <b>le bonheur a-t-il un prix ?</b> Qu\'est-ce qui garantit notre bonheur ?'],
+  ['Une question vieille comme la philosophie', 'Les philosophes se la posent depuis l\'Antiquité. Pour Aristote, c\'est l\'<b>eudaimonia</b> : bien vivre, en épanouissant ce qui fait de nous des humains. Pour Épicure, c\'est l\'<b>ataraxie</b> : la tranquillité de l\'âme, sans trouble ni crainte. Alors, qu\'est-ce qui nous rend heureux ?'],
+  ['Nuage de mots (le public participe)', 'Scannez le QR code et envoyez autant de mots que vous voulez : selon vous, qu\'est-ce qui vous rend heureux ? <i>(laisser 1 min ; lire quelques mots à voix haute.)</i>'],
+  ['Une expérience de pensée', 'Imaginez une nation qui semble avoir trouvé la solution. Ses dirigeants promettent la paix et la prospérité, et affirment avoir tenu leur promesse.'],
+  ['Une nation sans crise ?', 'Le régime annonce moins de 1 % de chômage et moins de 1 % de criminalité. Il présente les 364 jours hors Purge comme une période de paix et de prospérité. Mais attention : ce sont <b>les chiffres du régime</b>. Suffisent-ils à prouver que la population est heureuse ?'],
+  ['Derrière la façade', 'Tout semble tenir : 364 jours de paix, 364 jours de prospérité. Mais une façade parfaite ne dit rien de ses fondations. Et si quelque chose se cachait derrière cette promesse ?'],
+  ['Le prix du 365e jour', 'Une fois par an, pendant 12 heures, la loi est suspendue. Toute violence, meurtre compris, devient légale, et les services d\'urgence sont suspendus. Le régime présente cette nuit comme un exutoire et un sacrifice civique. La paix promise a donc une contrepartie : <b>qui en paie le prix ?</b>'],
+  ['Révélation : American Nightmare', 'Cette société n\'existe pas, heureusement. Elle vient d\'un film : <i>American Nightmare</i> (<i>The Purge</i>), de James DeMonaco, en 2013. Une fiction peut servir d\'expérience de pensée : que vaut une sécurité qui dépend de la violence ?'],
+  ['Première fracture', 'Les plus riches peuvent s\'équiper et protéger leur foyer. Les plus pauvres, moins protégés, sont davantage exposés. La sécurité dépend alors des moyens de chacun, au lieu d\'être garantie à tous. <b>Droit ou privilège ?</b>'],
+  ['Seconde fracture', 'La menace permanente rend la confiance difficile. Se barricader protège un foyer, mais peut renforcer l\'isolement. La violence tolérée banalise la souffrance d\'autrui et fragilise l\'empathie. Rester en vie ne suffit pas à vivre heureux : <b>survivre n\'est pas vivre</b>.'],
+  ['Retour au réel : de quoi a-t-on besoin ?', 'Manger, dormir, avoir un toit : ce sont des besoins essentiels. La sécurité aide à vivre sans menace constante, mais ne suffit pas. Pour s\'épanouir, il faut aussi des liens, de la liberté et la possibilité d\'agir. La pyramide de Maslow est un <b>modèle de réflexion</b>, pas une règle universelle.'],
+  ['Justice : qui paie le prix ?', 'Rawls propose d\'imaginer les règles d\'une société sans savoir quelle place on y occupera. Accepterions-nous ce système sans savoir si nous serons protégés ou exposés ? Une sécurité qui protège certains en sacrifiant les autres n\'est pas une sécurité juste. Cela nous ramène à votre question : qu\'est-ce qui rend vraiment heureux ?'],
+  ['Retour au nuage de mots', 'Revenons à vos mots du début… <i>(commenter 2 ou 3 mots : liens, liberté, famille, etc. selon ce qui ressort.)</i>'],
+  ['Un petit rappel (sans animation)', 'Vos mots rappellent que le bonheur ne se réduit pas à survivre : il tient aussi aux liens, à la liberté et aux projets. Un toit, de quoi manger, la sécurité : ce qui nous semble acquis dépend aussi du lieu et des circonstances dans lesquels on naît. Pour des peuples opprimés, des personnes en guerre ou contraintes à l\'exil, ces besoins restent une urgence quotidienne. <b>Ne les oublions pas.</b>'],
+  ['Conclusion', 'La sécurité est nécessaire pour satisfaire nos besoins et nous épanouir. Mais elle ne suffit pas à garantir le bonheur. Si elle repose sur l\'injustice, la privation de liberté et la rupture des liens humains, son coût est trop élevé. <b>Le bonheur ne peut pas se construire au prix de l\'humanité des autres.</b>'],
+  ['Merci !', 'Merci de votre attention. Des questions ?']
+];
+const hostId = 'diapo-bonheur-7k3q9x2m';
+const $ = id => document.getElementById(id);
+let pcCur = 0, cur = 0, follow = true;
+
+function draw() {
+  const [h, t] = notes[cur];
+  $('n').textContent = `Diapo ${cur + 1}/${notes.length}`;
+  $('k').textContent = follow ? 'Affiché sur le PC' : 'Navigation libre';
+  $('h').textContent = h;
+  $('t').innerHTML = t;
+  $('nx').textContent = cur < notes.length - 1 ? 'Ensuite : ' + notes[cur + 1][0] : '';
+  $('fl').className = follow ? 'on' : '';
+  $('fl').textContent = follow ? 'Suit le PC' : 'Revenir au PC';
+}
+function go(i) { cur = Math.max(0, Math.min(notes.length - 1, i)); follow = cur === pcCur; draw(); }
+$('pv').onclick = () => go(cur - 1);
+$('nxb').onclick = () => go(cur + 1);
+$('fl').onclick = () => go(pcCur);
+
+function connect() {
+  const peer = new Peer();
+  const st = s => $('st').textContent = s;
+  peer.on('open', () => {
+    const c = peer.connect(hostId, { reliable: true });
+    c.on('open', () => st('🟢 relié au PC'));
+    c.on('data', d => {
+      if (d.t === 'state' && typeof d.state.cur === 'number') {
+        pcCur = Math.min(d.state.cur, notes.length - 1);
+        if (follow) cur = pcCur;
+        draw();
+      }
+    });
+    c.on('close', () => { st('🟠 reconnexion…'); peer.destroy(); setTimeout(connect, 2000); });
+  });
+  peer.on('error', () => { st('🟠 PC introuvable, nouvel essai…'); peer.destroy(); setTimeout(connect, 3000); });
+}
+draw(); connect();
+</script>
+</body>
+</html>
