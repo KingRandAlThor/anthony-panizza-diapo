@@ -43,8 +43,18 @@ li.show{opacity:1;transform:none}li b{color:var(--hl);font-weight:600}
 @keyframes flash{0%{filter:brightness(3) drop-shadow(0 0 2vw #fff)}100%{filter:none}}
 @keyframes pop{from{opacity:0;transform:scale(.2) rotate(-8deg)}to{opacity:1;transform:none}}
 .tot{font-size:1.6vw;color:var(--mut)}
-#bar{position:fixed;left:0;right:0;bottom:0;padding:8px 12px;background:#020617;display:flex;gap:8px;align-items:center;opacity:.2;transition:opacity .2s;z-index:5}
-#bar:hover{opacity:1}#bar button{padding:6px 12px;font-size:.95rem;cursor:pointer}#bar .info{color:#94a3b8;font-size:.85rem;margin-left:auto}
+#bar{position:fixed;left:50%;bottom:2vh;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:9px;display:flex;align-items:center;gap:10px;background:#090b14eF;border:1px solid #ffffff20;border-radius:16px;box-shadow:0 12px 40px #0008;backdrop-filter:blur(16px);z-index:5}
+#bar .controls,#bar .tools{display:flex;align-items:center;gap:6px}
+#bar button{min-height:40px;padding:8px 12px;border:1px solid #ffffff20;border-radius:10px;background:#ffffff0b;color:var(--txt);font:600 .9rem system-ui;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+#bar button:hover{background:#ffffff1a;border-color:#ffffff45;transform:translateY(-1px)}
+#bar button:active{transform:translateY(0)}
+#bar button:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+#bar #prev,#bar #next{width:42px;padding:8px;font-size:1.05rem}
+#bar #next{background:#f97316;color:#1b0c08;border-color:#fb923c}
+#bar .divider{height:28px;width:1px;background:#ffffff20}
+#bar .info{color:#cbd5e1;font-size:.78rem;line-height:1.35;white-space:nowrap}
+#bar #n{font-variant-numeric:tabular-nums;font-weight:650}
+@media(max-width:760px){#bar{bottom:8px;max-width:calc(100vw - 16px);padding:6px;gap:6px;border-radius:12px}#bar .controls,#bar .tools{gap:4px}#bar button{min-height:36px;padding:6px 8px;font-size:.78rem}#bar #prev,#bar #next{width:36px}#bar .info{font-size:.68rem}#bar .hint{display:none}}
 body{--o1:#1e3a8a;--o2:#b45309}
 body.dusk{--o1:#6d28d9;--o2:#b91c1c}body.red{--o1:#991b1b;--o2:#7c2d12}
 .orb{position:fixed;border-radius:50%;filter:blur(9vw);opacity:.45;pointer-events:none;transition:background 1.6s;z-index:-1}
@@ -76,9 +86,19 @@ li.show::before{animation:ping 1.2s ease-out}@keyframes ping{0%{box-shadow:0 0 0
 <div class="orb" id="o1"></div><div class="orb" id="o2"></div><div id="prog"></div>
 <section id="slide" class="slide"></section>
 <div id="bar">
-  <button id="prev">◀</button><button id="next">▶</button>
-  <button id="toggle"></button><button id="reset">Remise à zéro</button><button id="full">⛶ Plein écran</button>
-  <span class="info" id="n"></span><span class="info" style="margin-left:0">← → naviguer · Espace ouvrir/fermer les envois · F plein écran · cliquer un mot pour le retirer</span>
+  <div class="controls">
+    <button id="prev" title="Diapositive précédente" aria-label="Diapositive précédente">←</button>
+    <span class="info" id="n"></span>
+    <button id="next" title="Diapositive suivante" aria-label="Diapositive suivante">→</button>
+  </div>
+  <span class="divider"></span>
+  <div class="tools">
+    <button id="toggle"></button>
+    <button id="reset">Effacer les mots</button>
+    <button id="full">⛶ Plein écran</button>
+  </div>
+  <span class="divider hint"></span>
+  <span class="info hint">← → avancer · Espace envois · F plein écran · Q QR/image</span>
 </div>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
