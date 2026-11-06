@@ -29,7 +29,8 @@ button{font-size:20px;padding:18px 10px;border:0;border-radius:12px;background:#
 <header><span id="n">…</span><span id="st">⏳ connexion au PC…</span></header>
 <main id="m"><h1 id="h"></h1><div id="segs"></div><div class="nx" id="nx"></div></main>
 <footer><button id="pv">◀</button><button id="fl" class="on">Pilote le PC</button><button id="nxb">Suivant ▶</button></footer>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script src="relay.js"></script>
 <script>
 /* Un segment par étape du PC : le segment 0 se dit avant la première apparition ;
    chaque segment suivant commence par un mot en <g> (doré) = appuyer sur Suivant en le disant. */
@@ -145,7 +146,7 @@ function connect() {
     setTimeout(connect, ms);
   };
   st('⏳ connexion au serveur…');
-  const peer = new Peer({ config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] } });
+  const peer = new Peer();
   let got = false;
   setTimeout(() => { if (!got) retry('🟠 pas de réponse du PC, nouvel essai…', 500); }, 12000);
   peer.on('open', () => {

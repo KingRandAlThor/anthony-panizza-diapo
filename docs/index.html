@@ -9,7 +9,8 @@ button:active{background:#2563eb}button.sel{background:#22c55e}button:disabled{o
 .msg{margin-top:16px;color:#94a3b8;text-align:center}
 </style></head><body>
 <div id="app"><p class="msg">Connexion…</p></div>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script src="relay.js"></script>
 <script>
 const app = document.getElementById('app');
 const hostId = new URLSearchParams(location.search).get('h');
@@ -58,7 +59,7 @@ function render() {
 }
 
 function connect() {
-  const peer = new Peer({ config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] } });
+  const peer = new Peer();
   peer.on('open', () => {
     conn = peer.connect(hostId, { reliable: true });
     conn.on('data', d => {
