@@ -32,7 +32,7 @@ function renderWords() {
       i.value = ''; i.focus();
     };
     document.getElementById('ws').onclick = send;
-    document.getElementById('wi').onkeydown = e => e.key === 'Enter' && send();
+    document.getElementById('wi').onkeydown = e => { if (e.key === 'Enter') send(); };
   }
   const n = sent()[w.id] || 0, left = Infinity;
   document.getElementById('wi').disabled = document.getElementById('ws').disabled = !s.open;
