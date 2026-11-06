@@ -22,7 +22,7 @@ function renderWords() {
   const w = s.words, key = 'w' + w.id;
   if (app.dataset.k !== key) {
     app.dataset.k = key;
-    app.innerHTML = '<h1></h1><input id="wi" maxlength="40" autocomplete="off" placeholder="Un mot…" style="width:100%;padding:16px;font-size:1.2rem;border-radius:12px;border:0;box-sizing:border-box"><button id="ws">Envoyer</button><p class="msg" id="wm"></p>';
+    app.innerHTML = '<h1></h1><input id="wi" maxlength="40" autocomplete="off" placeholder="Un mot…" style="width:100%;padding:16px;font-size:1.2rem;border-radius:12px;border:0;box-sizing:border-box;background:#fff;color:#000;-webkit-text-fill-color:#000;-webkit-appearance:none;appearance:none"><button id="ws">Envoyer</button><p class="msg" id="wm"></p>';
     app.querySelector('h1').textContent = w.question;
     const send = () => {
       const i = document.getElementById('wi');
