@@ -175,9 +175,8 @@ const view = () => {
 };
 
 const hostId = 'diapo-bonheur-7k3q9x2m';
-const voterUrl = new URL('./?h=' + hostId, location.href).href;
-const qr = qrcode(0, 'M'); qr.addData(voterUrl); qr.make();
-const qrSvg = qr.createSvgTag({ scalable: true, margin: 0 });
+const voterUrl = 'https://kingrandalthor.github.io/anthony-panizza-diapo/?h=' + hostId;
+const qrSvg = '<img src="qr-bonheur.png" alt="QR code" style="width:100%;height:100%;object-fit:contain;display:block">';
 
 const conns = new Set();
 const broadcast = () => { const m = { t: 'state', state: view() }; conns.forEach(c => c.open && c.send(m)); };
