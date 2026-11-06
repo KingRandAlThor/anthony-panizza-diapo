@@ -189,7 +189,7 @@ function onVote(conn, d) {
 }
 
 function startPeer() {
-  const peer = new Peer(hostId, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }] } });
+  const peer = new Peer(hostId, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] } });
   peer.on('connection', conn => {
     conn.on('open', () => { conns.add(conn); conn.send({ t: 'state', state: view() }); draw(); });
     conn.on('data', d => d.t === 'vote' && onVote(conn, d));
